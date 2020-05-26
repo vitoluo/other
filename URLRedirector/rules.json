@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "origin": "//ajax.googleapis.com/",
+      "target": "//gapis.geekzu.org/ajax/",
+      "enable": true
+    },
+    {
+      "origin": "//*.gravatar.com/avatar/",
+      "target": "//sdn.geekzu.org/avatar/",
+      "enable": true
+    },
+    {
+      "origin": "//fonts.googleapis.com",
+      "target": "//fonts.geekzu.org",
+      "enable": true
+    },
+    {
+      "origin": "//fonts.gstatic.com/",
+      "target": "//gapis.geekzu.org/g-fonts/",
+      "enable": true
+    },
+    {
+      "origin": "//themes.googleusercontent.com/",
+      "target": "//gapis.geekzu.org/g-themes/",
+      "enable": true
+    }
+  ]
+}
