@@ -45,6 +45,11 @@
       "origin": "//maxcdn.bootstrapcdn.com/bootstrap/",
       "target": "//cdn.staticfile.org/twitter-bootstrap/",
       "enable": true
+    },
+    {
+      "origin": "//cdnjs.cloudflare.com/ajax/libs/",
+      "target": "//cdn.staticfile.org/",
+      "enable": true
     }
   ]
 }
