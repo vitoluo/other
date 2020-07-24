@@ -35,6 +35,16 @@
       "origin": "//code.jquery.com/ui/",
       "target": "//cdn.staticfile.org/jqueryui/",
       "enable": true
+    },
+    {
+      "origin": "//maxcdn.bootstrapcdn.com/font-awesome/",
+      "target": "//cdn.staticfile.org/font-awesome/",
+      "enable": true
+    },
+    {
+      "origin": "//maxcdn.bootstrapcdn.com/bootstrap/",
+      "target": "//cdn.staticfile.org/twitter-bootstrap/",
+      "enable": true
     }
   ]
 }
