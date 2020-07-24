@@ -12,8 +12,8 @@
       "enable": true
     },
     {
-      "origin": "//fonts.googleapis.com",
-      "target": "//fonts.geekzu.org",
+      "origin": "//fonts.googleapis.com/",
+      "target": "//fonts.geekzu.org/",
       "enable": true
     },
     {
@@ -24,6 +24,11 @@
     {
       "origin": "//themes.googleusercontent.com/",
       "target": "//gapis.geekzu.org/g-themes/",
+      "enable": true
+    },
+    {
+      "origin": "//www.google.com/recaptcha/",
+      "target": "//www.recaptcha.net/recaptcha/",
       "enable": true
     }
   ]
