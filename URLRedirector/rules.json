@@ -30,6 +30,11 @@
       "origin": "//www.google.com/recaptcha/",
       "target": "//www.recaptcha.net/recaptcha/",
       "enable": true
+    },
+    {
+      "origin": "//code.jquery.com/ui/",
+      "target": "//cdn.staticfile.org/jqueryui/",
+      "enable": true
     }
   ]
 }
