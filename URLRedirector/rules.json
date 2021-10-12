@@ -2,6 +2,11 @@
   "version": "2.0",
   "rules": [
     {
+      "origin": "//www.google.com/recaptcha/",
+      "target": "//www.recaptcha.net/recaptcha/",
+      "enable": true
+    },
+    {
       "origin": "//ajax.googleapis.com/",
       "target": "//gapis.geekzu.org/ajax/",
       "enable": true
