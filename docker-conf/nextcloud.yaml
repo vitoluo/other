@@ -1,0 +1,50 @@
+services:
+  nextcloud:
+    build:
+      context: ./conf/nextcloud
+    container_name: nextcloud
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/nextcloud/data:/var/www/html
+    environment:
+      - NEXTCLOUD_ADMIN_USER=${USERNAME}
+      - NEXTCLOUD_ADMIN_PASSWORD=${PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${COMPANY_HOST}
+      - APACHE_DISABLE_REWRITE_IP=1
+      - TRUSTED_PROXIES=${DOCKER_COMPANY_SUBNET}
+      - POSTGRES_HOST=nextcloud_db
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=123123
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_AUTHTYPE=LOGIN
+      - SMTP_NAME=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_USERNAME}
+      - MAIL_DOMAIN=${MAIL_DOMAIN}
+    depends_on:
+      - nextcloud_db
+  nextcloud_db:
+    image: postgres:14.2
+    container_name: nextcloud_db
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/nextcloud/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=123123
+
+networks:
+  union:
+    external: true

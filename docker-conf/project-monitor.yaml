@@ -1,0 +1,19 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - ./data/project-monitor/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    networks:
+      - union
+
+networks:
+  union:
+    external: true

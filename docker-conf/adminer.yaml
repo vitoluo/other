@@ -1,0 +1,14 @@
+services:
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    networks:
+      union:
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+networks:
+  union:
+    external: true

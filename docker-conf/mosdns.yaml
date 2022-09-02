@@ -1,0 +1,17 @@
+services:
+  mosdns:
+    build: ./conf/mosdns
+    container_name: mosdns
+    restart: unless-stopped
+    networks:
+      - union
+    ports:
+      - 5353:5353/udp
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mosdns:/etc/mosdns
+
+networks:
+  union:
+    external: true

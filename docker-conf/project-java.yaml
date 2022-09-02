@@ -1,0 +1,18 @@
+services:
+  project-java:
+    build: ./conf/project-java
+    container_name: project-java
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/project-java:/app
+    environment:
+      APP_MEM: 1G
+      SPRING_PROFILE: dev
+
+networks:
+  union:
+    external: true

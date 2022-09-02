@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:6.2
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      union:
+    ports:
+      - 6379:6379
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/redis/conf:/usr/local/etc/redis
+      - ./data/redis/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+networks:
+  union:
+    external: true

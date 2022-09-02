@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    networks:
+      union:
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PASSWORD}
+    cap_add:
+      - CAP_SYS_NICE
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mysql/conf.d:/etc/mysql/conf.d
+      - ./data/mysql/data:/var/lib/mysql
+
+networks:
+  union:
+    external: true

@@ -1,0 +1,34 @@
+services:
+  gitea:
+    image: gitea/gitea:1.16
+    container_name: gitea
+    restart: unless-stopped
+    environment:
+      GITEA____APP_NAME: leocat 版本控制系统
+      GITEA__server__DOMAIN: ${COMPANY_HOST}
+      GITEA__server__ROOT_URL: ${COMPANY_HTTP_PROTOCOL}://git.${COMPANY_DOMAIN}:${COMPANY_PORT}/
+      GITEA__server__SSH_PORT: 10022
+      GITEA__openid__ENABLE_OPENID_SIGNIN: 'false'
+      GITEA__openid__ENABLE_OPENID_SIGNUP: 'false'
+      GITEA__service__DISABLE_REGISTRATION: 'true'
+      GITEA__service__REQUIRE_SIGNIN_VIEW: 'true'
+      GITEA__mailer__ENABLED: 'true'
+      GITEA__mailer__FROM: ${MAIL_FROM}
+      GITEA__mailer__MAILER_TYPE: smtp
+      GITEA__mailer__HOST: ${SMTP_HOST}:${SMTP_PORT}
+      GITEA__mailer__USER: ${SMTP_USER}
+      GITEA__mailer__PASSWD: ${SMTP_PASSWORD}
+      GITEA__picture__DISABLE_GRAVATAR: 'true'
+      GITEA__api__ENABLE_SWAGGER: 'false'
+    networks:
+      - union
+    ports:
+      - '10022:22'
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/gitea:/data
+
+networks:
+  union:
+    external: true

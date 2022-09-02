@@ -1,0 +1,147 @@
+log:
+  level: warn
+
+data_providers:
+  - tag: private_ip
+    file: ./geoip_private.txt
+    auto_reload: true
+  - tag: cn_ip
+    file: ./geoip_cn.txt
+    auto_reload: true
+  - tag: ad_site
+    file: ./geosite_category-ads-all.txt
+    auto_reload: true
+  - tag: cn_site
+    file: ./geosite_cn.txt
+    auto_reload: true
+  - tag: ncn_site
+    file: ./geosite_geolocation-!cn.txt
+    auto_reload: true
+
+plugins:
+  - tag: forward_cn
+    type: fast_forward
+    args:
+      upstream:
+        - addr: 223.5.5.5
+  - tag: forward_not_cn
+    type: fast_forward
+    args:
+      upstream:
+        - addr: udpme://8.8.8.8
+          trusted: true
+        - addr: udpme://208.67.222.222
+          trusted: true
+
+  - tag: ecs
+    type: ecs
+    args:
+      auto: true
+  - tag: ecs_pri
+    type: ecs
+    args:
+      ipv4: 202.98.98.98
+  - tag: ecs_tw
+    type: ecs
+    args:
+      ipv4: 168.95.12.14
+      force_overwrite: true
+
+  - tag: cache
+    type: cache
+    args:
+      size: 10240
+      lazy_cache_ttl: 86400
+      cache_everything: true
+
+  - tag: from_pri
+    type: query_matcher
+    args:
+      client_ip:
+        - "provider:private_ip"
+  - tag: query_ad
+    type: query_matcher
+    args:
+      domain:
+        - "provider:ad_site"
+  - tag: query_cn
+    type: query_matcher
+    args:
+      domain:
+        - "provider:cn_site"
+  - tag: query_not_cn
+    type: query_matcher
+    args:
+      domain:
+        - "provider:ncn_site"
+  - tag: response_cn
+    type: response_matcher
+    args:
+      ip:
+        - "provider:cn_ip"
+
+  - tag: seq_cn
+    type: sequence
+    args:
+      exec:
+        - _pad_query
+        - forward_cn
+        - _enable_conditional_response_padding
+  - tag: seq_not_cn
+    type: sequence
+    args:
+      exec:
+        - ecs_tw
+        - _pad_query
+        - forward_not_cn
+        - _enable_conditional_response_padding
+
+  - tag: main_sequence
+    type: sequence
+    args:
+      exec:
+        - if: query_ad
+          exec:
+            - _new_nxdomain_response
+            - _return
+        - if: from_pri
+          exec:
+            - ecs_pri
+          else_exec:
+            - ecs
+        - cache
+        - _prefer_ipv4
+        - if: query_cn
+          exec:
+            - seq_cn
+            - _return
+        - if: query_not_cn
+          exec:
+            - seq_not_cn
+            - _return
+        - parallel:
+            - - seq_cn
+              - if: response_cn
+                exec:
+                  - _return
+                else_exec:
+                  - _drop_response
+            - - seq_not_cn
+              - if: "!response_cn"
+                exec:
+                  - _return
+                else_exec:
+                  - _drop_response
+
+servers:
+  - exec: main_sequence
+    listeners:
+      - protocol: udp
+        addr: :5353
+      - protocol: http
+        addr: :80
+        url_path: /dns-query
+        get_user_ip_from_header: X-Forwarded-For
+
+api:
+  http: 127.0.0.1:8080

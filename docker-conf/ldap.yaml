@@ -1,0 +1,74 @@
+services:
+  ldap:
+    image: osixia/openldap
+    container_name: ldap
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/ldap/data:/var/lib/ldap
+      - ./data/ldap/conf:/etc/ldap/slapd.d
+    environment:
+      LDAP_OPENLDAP_GID: ${GID}
+      LDAP_OPENLDAP_UID: ${UID}
+      LDAP_ORGANISATION: ${LDAP_ORGANISATION}
+      LDAP_DOMAIN: ${LDAP_DOMAIN}
+      LDAP_ADMIN_PASSWORD: ${PASSWORD}
+  ldap_admin:
+    build: ./conf/phpldapadmin
+    container_name: ldap_admin
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      PHPLDAPADMIN_SERVER_ADMIN: ${MAIL_FROM}
+      PHPLDAPADMIN_SERVER_PATH: /ldap-admin
+      PHPLDAPADMIN_HTTPS: "false"
+      PHPLDAPADMIN_LDAP_HOSTS: "ldap"
+    depends_on:
+      - ldap
+  ldap_ssp:
+    image: tiredofit/self-service-password
+    container_name: ldap_ssp
+    restart: unless-stopped
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - LANG=cn
+      - IS_BEHIND_PROXY=true
+      - SITE_URL=${COMPANY_URL}/ldap-ssp/
+      - DEFAULT_ACTION=change
+      - LDAP_SERVER=${LDAP_SERVER}
+      - LDAP_BINDDN=${LDAP_BIND_DN}
+      - LDAP_BINDPASS=${PASSWORD}
+      - LDAP_BASE_SEARCH=${LDAP_BASE_DN}
+      - LDAP_LOGIN_ATTRIBUTE=${LDAP_USERNAME}
+      - LDAP_FULLNAME_ATTRIBUTE=${LDAP_FULLNAME}
+      - LDAP_MAIL_ATTRIBUTE=${LDAP_EMAIL}
+      - WHO_CAN_CHANGE_PASSWORD=manager
+      - PASSWORD_HASH=CRYPT
+      - PASSWORD_MIN_LENGTH=6
+      - LDAP_EXTENDED_ERROR=true
+      - NOTIFY_ON_CHANGE=true
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE_TYPE=${SMTP_SECURE}
+      - MAIL_FROM=${MAIL_FROM}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - SMTP_AUTH_ON=true
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASSWORD}
+    depends_on:
+      - ldap
+
+networks:
+  union:
+    external: true
