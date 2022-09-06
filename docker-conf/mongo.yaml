@@ -1,17 +1,17 @@
 services:
   mongo:
-    image: mongo:5.0
     container_name: mongo
-    restart: unless-stopped
+    restart: on-failure:3
+    image: mongo:5.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
     networks:
       union:
     ports:
       - 27017:27017
     volumes:
       - ./data/mongo:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
 
 networks:
   union:

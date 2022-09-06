@@ -1,15 +1,9 @@
 services:
   nextcloud:
+    container_name: nextcloud
+    restart: on-failure:3
     build:
       context: ./conf/nextcloud
-    container_name: nextcloud
-    restart: unless-stopped
-    networks:
-      - union
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./data/nextcloud/data:/var/www/html
     environment:
       - NEXTCLOUD_ADMIN_USER=${USERNAME}
       - NEXTCLOUD_ADMIN_PASSWORD=${PASSWORD}
@@ -28,22 +22,28 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - MAIL_FROM_ADDRESS=${MAIL_FROM_USERNAME}
       - MAIL_DOMAIN=${MAIL_DOMAIN}
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/nextcloud/data:/var/www/html
     depends_on:
       - nextcloud_db
   nextcloud_db:
-    image: postgres:14.2
     container_name: nextcloud_db
-    restart: unless-stopped
+    restart: on-failure:3
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_PASSWORD=123123
     networks:
       - union
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/nextcloud/db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=nextcloud
-      - POSTGRES_DB=nextcloud
-      - POSTGRES_PASSWORD=123123
 
 networks:
   union:

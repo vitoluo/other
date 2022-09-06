@@ -1,8 +1,10 @@
 services:
   postgres:
-    image: postgres:10
     container_name: postgres
-    restart: unless-stopped
+    restart: on-failure:3
+    image: postgres:10
+    environment:
+      POSTGRES_PASSWORD: ${PASSWORD}
     networks:
       - union
     ports:
@@ -11,8 +13,6 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/postgresql:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: ${PASSWORD}
 
 networks:
   union:

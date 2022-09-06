@@ -1,8 +1,8 @@
 services:
   adminer:
-    image: adminer
     container_name: adminer
-    restart: unless-stopped
+    restart: on-failure:3
+    image: adminer
     networks:
       union:
     volumes:

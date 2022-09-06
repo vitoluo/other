@@ -1,8 +1,13 @@
 services:
   artemis:
-    build: ./conf/artemis
     container_name: artemis
-    restart: unless-stopped
+    restart: on-failure:3
+    build: ./conf/artemis
+    environment:
+      ARTEMIS_USER: ${USERNAME}
+      ARTEMIS_PASSWORD: ${PASSWORD}
+      ANONYMOUS_LOGIN: 'true'
+      EXTRA_ARGS: --http-host 0.0.0.0 --relax-jolokia
     networks:
       union:
     ports:
@@ -12,11 +17,6 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ./data/artemis:/var/lib/artemis-instance
-    environment:
-      ARTEMIS_USER: ${USERNAME}
-      ARTEMIS_PASSWORD: ${PASSWORD}
-      ANONYMOUS_LOGIN: 'true'
-      EXTRA_ARGS: --http-host 0.0.0.0 --relax-jolokia
 
 networks:
   union:

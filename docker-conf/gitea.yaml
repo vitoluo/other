@@ -1,8 +1,8 @@
 services:
   gitea:
-    image: gitea/gitea:1.16
     container_name: gitea
-    restart: unless-stopped
+    restart: on-failure:3
+    image: gitea/gitea:1.16
     environment:
       GITEA____APP_NAME: leocat 版本控制系统
       GITEA__server__DOMAIN: ${COMPANY_HOST}

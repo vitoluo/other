@@ -1,8 +1,14 @@
 services:
   ldap:
-    image: osixia/openldap
     container_name: ldap
-    restart: unless-stopped
+    restart: on-failure:3
+    image: osixia/openldap
+    environment:
+      LDAP_OPENLDAP_GID: ${GID}
+      LDAP_OPENLDAP_UID: ${UID}
+      LDAP_ORGANISATION: ${LDAP_ORGANISATION}
+      LDAP_DOMAIN: ${LDAP_DOMAIN}
+      LDAP_ADMIN_PASSWORD: ${PASSWORD}
     networks:
       - union
     volumes:
@@ -10,37 +16,26 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./data/ldap/data:/var/lib/ldap
       - ./data/ldap/conf:/etc/ldap/slapd.d
-    environment:
-      LDAP_OPENLDAP_GID: ${GID}
-      LDAP_OPENLDAP_UID: ${UID}
-      LDAP_ORGANISATION: ${LDAP_ORGANISATION}
-      LDAP_DOMAIN: ${LDAP_DOMAIN}
-      LDAP_ADMIN_PASSWORD: ${PASSWORD}
   ldap_admin:
-    build: ./conf/phpldapadmin
     container_name: ldap_admin
-    restart: unless-stopped
-    networks:
-      - union
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure:3
+    build: ./conf/phpldapadmin
     environment:
       PHPLDAPADMIN_SERVER_ADMIN: ${MAIL_FROM}
       PHPLDAPADMIN_SERVER_PATH: /ldap-admin
       PHPLDAPADMIN_HTTPS: "false"
       PHPLDAPADMIN_LDAP_HOSTS: "ldap"
-    depends_on:
-      - ldap
-  ldap_ssp:
-    image: tiredofit/self-service-password
-    container_name: ldap_ssp
-    restart: unless-stopped
     networks:
       - union
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - ldap
+  ldap_ssp:
+    container_name: ldap_ssp
+    restart: on-failure:3
+    image: tiredofit/self-service-password
     environment:
       - LANG=cn
       - IS_BEHIND_PROXY=true
@@ -66,6 +61,11 @@ services:
       - SMTP_AUTH_ON=true
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASSWORD}
+    networks:
+      - union
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
       - ldap
 

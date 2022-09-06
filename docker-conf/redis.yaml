@@ -1,8 +1,8 @@
 services:
   redis:
-    image: redis:6.2
     container_name: redis
-    restart: unless-stopped
+    restart: on-failure:3
+    image: redis:6.2
     networks:
       union:
     ports:

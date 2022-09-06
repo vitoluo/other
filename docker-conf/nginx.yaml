@@ -1,8 +1,8 @@
 services:
   nginx:
-    image: nginx:1.21
     container_name: nginx
-    restart: unless-stopped
+    restart: on-failure:3
+    image: nginx:1.21
     networks:
       - union
     extra_hosts:

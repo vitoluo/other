@@ -1,8 +1,8 @@
 services:
   mosdns:
-    build: ./conf/mosdns
     container_name: mosdns
-    restart: unless-stopped
+    restart: on-failure:3
+    build: ./conf/mosdns
     networks:
       - union
     ports:
