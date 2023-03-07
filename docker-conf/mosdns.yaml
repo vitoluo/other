@@ -1,17 +1,11 @@
 services:
   mosdns:
     container_name: mosdns
-    restart: on-failure:3
+    restart: unless-stopped
     build: ./conf/mosdns
-    networks:
-      - union
     ports:
-      - 5353:5353/udp
+    - 5353:5353/udp
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./data/mosdns:/etc/mosdns
-
-networks:
-  union:
-    external: true
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - ./data/mosdns:/etc/mosdns

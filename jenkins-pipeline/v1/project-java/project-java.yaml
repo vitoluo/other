@@ -1,0 +1,12 @@
+services:
+  project-java:
+    container_name: project-java
+    restart: unless-stopped
+    build: ./conf/project-java
+    environment:
+      APP_MEM: 1G
+      SPRING_PROFILE: dev
+    volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - ./data/project-java:/app

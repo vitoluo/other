@@ -1,8 +1,11 @@
 services:
-  nginx:
-    container_name: nginx
+  tengine:
+    container_name: tengine
     restart: unless-stopped
-    image: nginx:1.21
+    build:
+      context: ./conf/tengine
+      args:
+        TENGINE_VERSION: 2.4.0
     extra_hosts:
     - host.docker.internal:host-gateway
     ports:
@@ -11,6 +14,5 @@ services:
     volumes:
     - /etc/timezone:/etc/timezone:ro
     - /etc/localtime:/etc/localtime:ro
-    - ./data/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
     - ./data/nginx/conf/conf.d:/etc/nginx/conf.d
     - ./data/nginx/data:/var/www

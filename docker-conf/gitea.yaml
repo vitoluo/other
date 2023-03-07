@@ -1,7 +1,7 @@
 services:
   gitea:
     container_name: gitea
-    restart: on-failure:3
+    restart: unless-stopped
     image: gitea/gitea:1.16
     environment:
       GITEA____APP_NAME: leocat 版本控制系统
@@ -20,15 +20,9 @@ services:
       GITEA__mailer__PASSWD: ${SMTP_PASSWORD}
       GITEA__picture__DISABLE_GRAVATAR: 'true'
       GITEA__api__ENABLE_SWAGGER: 'false'
-    networks:
-      - union
     ports:
-      - '10022:22'
+    - '10022:22'
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./data/gitea:/data
-
-networks:
-  union:
-    external: true
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - ./data/gitea:/data

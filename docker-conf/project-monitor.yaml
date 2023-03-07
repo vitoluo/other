@@ -1,19 +1,13 @@
 services:
   prometheus:
     container_name: prometheus
-    restart: on-failure:3
+    restart: unless-stopped
     image: prom/prometheus
-    networks:
-      - union
     volumes:
-      - ./data/project-monitor/prometheus.yml:/etc/prometheus/prometheus.yml
+    - ./data/project-monitor/prometheus.yml:/etc/prometheus/prometheus.yml
   grafana:
+    depends_on:
+    - prometheus
     container_name: grafana
-    restart: on-failure:3
+    restart: unless-stopped
     image: grafana/grafana
-    networks:
-      - union
-
-networks:
-  union:
-    external: true

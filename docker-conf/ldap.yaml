@@ -1,7 +1,7 @@
 services:
   ldap:
     container_name: ldap
-    restart: on-failure:3
+    restart: unless-stopped
     image: osixia/openldap
     environment:
       LDAP_OPENLDAP_GID: ${GID}
@@ -9,66 +9,56 @@ services:
       LDAP_ORGANISATION: ${LDAP_ORGANISATION}
       LDAP_DOMAIN: ${LDAP_DOMAIN}
       LDAP_ADMIN_PASSWORD: ${PASSWORD}
-    networks:
-      - union
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - ./data/ldap/data:/var/lib/ldap
-      - ./data/ldap/conf:/etc/ldap/slapd.d
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - ./data/ldap/data:/var/lib/ldap
+    - ./data/ldap/conf:/etc/ldap/slapd.d
   ldap_admin:
+    depends_on:
+    - ldap
     container_name: ldap_admin
-    restart: on-failure:3
+    restart: unless-stopped
     build: ./conf/phpldapadmin
     environment:
       PHPLDAPADMIN_SERVER_ADMIN: ${MAIL_FROM}
       PHPLDAPADMIN_SERVER_PATH: /ldap-admin
       PHPLDAPADMIN_HTTPS: "false"
       PHPLDAPADMIN_LDAP_HOSTS: "ldap"
-    networks:
-      - union
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - ldap
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
   ldap_ssp:
+    depends_on:
+    - ldap
     container_name: ldap_ssp
-    restart: on-failure:3
+    restart: unless-stopped
     image: tiredofit/self-service-password
     environment:
-      - LANG=cn
-      - IS_BEHIND_PROXY=true
-      - SITE_URL=${COMPANY_URL}/ldap-ssp/
-      - DEFAULT_ACTION=change
-      - LDAP_SERVER=${LDAP_SERVER}
-      - LDAP_BINDDN=${LDAP_BIND_DN}
-      - LDAP_BINDPASS=${PASSWORD}
-      - LDAP_BASE_SEARCH=${LDAP_BASE_DN}
-      - LDAP_LOGIN_ATTRIBUTE=${LDAP_USERNAME}
-      - LDAP_FULLNAME_ATTRIBUTE=${LDAP_FULLNAME}
-      - LDAP_MAIL_ATTRIBUTE=${LDAP_EMAIL}
-      - WHO_CAN_CHANGE_PASSWORD=manager
-      - PASSWORD_HASH=CRYPT
-      - PASSWORD_MIN_LENGTH=6
-      - LDAP_EXTENDED_ERROR=true
-      - NOTIFY_ON_CHANGE=true
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_SECURE_TYPE=${SMTP_SECURE}
-      - MAIL_FROM=${MAIL_FROM}
-      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
-      - SMTP_AUTH_ON=true
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASSWORD}
-    networks:
-      - union
+      LANG: cn
+      IS_BEHIND_PROXY: "true"
+      SITE_URL: ${COMPANY_URL}/ldap-ssp/
+      DEFAULT_ACTION: change
+      LDAP_SERVER: ${LDAP_SERVER}
+      LDAP_BINDDN: ${LDAP_BIND_DN}
+      LDAP_BINDPASS: ${PASSWORD}
+      LDAP_BASE_SEARCH: ${LDAP_BASE_DN}
+      LDAP_LOGIN_ATTRIBUTE: ${LDAP_USERNAME}
+      LDAP_FULLNAME_ATTRIBUTE: ${LDAP_FULLNAME}
+      LDAP_MAIL_ATTRIBUTE: ${LDAP_EMAIL}
+      WHO_CAN_CHANGE_PASSWORD: manager
+      PASSWORD_HASH: CRYPT
+      PASSWORD_MIN_LENGTH: "6"
+      LDAP_EXTENDED_ERROR: "true"
+      NOTIFY_ON_CHANGE: "true"
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE_TYPE: ${SMTP_SECURE}
+      MAIL_FROM: ${MAIL_FROM}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+      SMTP_AUTH_ON: "true"
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASSWORD}
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    depends_on:
-      - ldap
-
-networks:
-  union:
-    external: true
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro

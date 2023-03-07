@@ -1,13 +1,8 @@
 services:
   jenkins:
     container_name: jenkins
-    restart: on-failure:3
-    build:
-      context: ./conf/jenkins
-      args:
-        DOCKER_GID: 998
-        GID: ${GID}
-        UID: ${UID}
+    restart: unless-stopped
+    image: jenkins/jenkins:2.375.3-lts-slim
     environment:
       JENKINS_OPTS: "--prefix=/jenkins"
     deploy:
@@ -15,15 +10,9 @@ services:
         limits:
           cpus: "2"
           memory: 2G
-    networks:
-      - union
     volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /usr/bin/docker:/usr/bin/docker
-      - ./data/jenkins:/var/jenkins_home
-
-networks:
-  union:
-    external: true
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /usr/bin/docker:/usr/bin/docker
+    - ./data/jenkins:/var/jenkins_home
