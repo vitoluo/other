@@ -2,10 +2,12 @@ services:
   mosdns:
     container_name: mosdns
     restart: unless-stopped
-    build: ./conf/mosdns
+    image: irinesistiana/mosdns:v4.5.3
     ports:
-    - 5353:5353/udp
+    - 5353:53/tcp
+    - 5353:53/udp
     volumes:
     - /etc/timezone:/etc/timezone:ro
     - /etc/localtime:/etc/localtime:ro
     - ./data/mosdns:/etc/mosdns
+    entrypoint: /etc/mosdns/entrypoint.sh
