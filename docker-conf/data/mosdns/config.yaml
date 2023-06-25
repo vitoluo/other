@@ -23,8 +23,8 @@ plugins:
     type: fast_forward
     args:
       upstream:
-        - addr: 223.5.5.5
-        - addr: 223.6.6.6
+        - addr: 120.53.53.5
+        - addr: 121.4.4.102
   - tag: forward_not_cn
     type: fast_forward
     args:
@@ -158,10 +158,8 @@ plugins:
 servers:
   - exec: main_sequence
     listeners:
-      - protocol: tcp
-        addr: :53
       - protocol: udp
-        addr: :53
+        addr: 127.0.0.1:5353
 
 api:
   http: 127.0.0.1:8080
