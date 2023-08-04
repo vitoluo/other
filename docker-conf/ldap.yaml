@@ -4,37 +4,35 @@ services:
     restart: unless-stopped
     image: osixia/openldap
     environment:
+      TZ: ${TZ}
       LDAP_OPENLDAP_GID: ${GID}
       LDAP_OPENLDAP_UID: ${UID}
       LDAP_ORGANISATION: ${LDAP_ORGANISATION}
       LDAP_DOMAIN: ${LDAP_DOMAIN}
       LDAP_ADMIN_PASSWORD: ${PASSWORD}
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/ldap/data:/var/lib/ldap
-    - ./data/ldap/conf:/etc/ldap/slapd.d
+      - ./data/ldap/data:/var/lib/ldap
+      - ./data/ldap/conf:/etc/ldap/slapd.d
   ldap_admin:
     depends_on:
-    - ldap
+      - ldap
     container_name: ldap_admin
     restart: unless-stopped
     build: ./conf/phpldapadmin
     environment:
+      TZ: ${TZ}
       PHPLDAPADMIN_SERVER_ADMIN: ${MAIL_FROM}
       PHPLDAPADMIN_SERVER_PATH: /ldap-admin
       PHPLDAPADMIN_HTTPS: "false"
       PHPLDAPADMIN_LDAP_HOSTS: "ldap"
-    volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
   ldap_ssp:
     depends_on:
-    - ldap
+      - ldap
     container_name: ldap_ssp
     restart: unless-stopped
     image: tiredofit/self-service-password
     environment:
+      TZ: ${TZ}
       LANG: cn
       IS_BEHIND_PROXY: "true"
       SITE_URL: ${COMPANY_URL}/ldap-ssp/
@@ -59,6 +57,3 @@ services:
       SMTP_AUTH_ON: "true"
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASSWORD}
-    volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro

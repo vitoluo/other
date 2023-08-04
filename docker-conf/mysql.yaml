@@ -4,13 +4,12 @@ services:
     restart: unless-stopped
     image: mysql:8.0
     environment:
+      TZ: ${TZ}
       MYSQL_ROOT_PASSWORD: ${PASSWORD}
     ports:
-    - 3306:3306
+      - 3306:3306
     cap_add:
-    - CAP_SYS_NICE
+      - CAP_SYS_NICE
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/mysql/conf.d:/etc/mysql/conf.d
-    - ./data/mysql/data:/var/lib/mysql
+      - ./data/mysql/conf.d:/etc/mysql/conf.d
+      - ./data/mysql/data:/var/lib/mysql

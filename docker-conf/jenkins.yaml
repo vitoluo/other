@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     image: jenkins/jenkins:2.375.3-lts-slim
     environment:
+      TZ: ${TZ}
       JENKINS_OPTS: "--prefix=/jenkins"
     deploy:
       resources:
@@ -11,8 +12,6 @@ services:
           cpus: "2"
           memory: 2G
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-    - /usr/bin/docker:/usr/bin/docker
-    - ./data/jenkins:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /usr/bin/docker:/usr/bin/docker
+      - ./data/jenkins:/var/jenkins_home

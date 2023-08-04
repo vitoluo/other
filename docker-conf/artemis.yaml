@@ -4,14 +4,13 @@ services:
     restart: unless-stopped
     build: ./conf/artemis
     environment:
+      TZ: ${TZ}
       ARTEMIS_USER: ${USERNAME}
       ARTEMIS_PASSWORD: ${PASSWORD}
-      ANONYMOUS_LOGIN: 'true'
+      ANONYMOUS_LOGIN: "true"
       EXTRA_ARGS: --http-host 0.0.0.0 --relax-jolokia
     ports:
-    - 8161:8161
-    - 61616:61616
+      - 8161:8161
+      - 61616:61616
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/artemis:/var/lib/artemis-instance
+      - ./data/artemis:/var/lib/artemis-instance

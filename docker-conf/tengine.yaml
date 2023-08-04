@@ -6,13 +6,13 @@ services:
       context: ./conf/tengine
       args:
         TENGINE_VERSION: 2.4.0
+    environment:
+      TZ: ${TZ}
     extra_hosts:
-    - host.docker.internal:host-gateway
+      - host.docker.internal:host-gateway
     ports:
-    - 80:80
-    - 443:443
+      - 80:80
+      - 443:443
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/nginx/conf/conf.d:/etc/nginx/conf.d
-    - ./data/nginx/data:/var/www
+      - ./data/nginx/conf/conf.d:/etc/nginx/conf.d
+      - ./data/nginx/data:/var/www

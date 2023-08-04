@@ -3,6 +3,5 @@ services:
     container_name: adminer
     restart: unless-stopped
     image: adminer
-    volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: ${TZ}

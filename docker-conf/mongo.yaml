@@ -4,55 +4,43 @@ services:
     restart: unless-stopped
     image: mongo:6.0
     environment:
+      TZ: ${TZ}
       MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
     command: --config /etc/mongo/mongod.conf
-    networks:
-    - mongo
     ports:
-    - 27017:27017
+      - 27017:27017
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
-    - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
-    - ./data/mongo/rs1:/data/db
+      - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
+      - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - ./data/mongo/rs1:/data/db
   mongo2:
     container_name: mongo2
     restart: unless-stopped
     image: mongo:6.0
     environment:
+      TZ: ${TZ}
       MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
     command: --config /etc/mongo/mongod.conf
-    networks:
-    - mongo
     ports:
-    - 27018:27017
+      - 27018:27017
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
-    - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
-    - ./data/mongo/rs2:/data/db
+      - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
+      - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - ./data/mongo/rs2:/data/db
   mongo3:
     container_name: mongo3
     restart: unless-stopped
     image: mongo:6.0
     environment:
+      TZ: ${TZ}
       MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
     command: --config /etc/mongo/mongod.conf
-    networks:
-    - mongo
     ports:
-    - 27019:27017
+      - 27019:27017
     volumes:
-    - /etc/timezone:/etc/timezone:ro
-    - /etc/localtime:/etc/localtime:ro
-    - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
-    - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
-    - ./data/mongo/rs3:/data/db
-
-networks:
-  mongo:
+      - ./data/mongo/mongod.key:/etc/mongo/mongod.key:ro
+      - ./data/mongo/mongod.conf:/etc/mongo/mongod.conf:ro
+      - ./data/mongo/rs3:/data/db
