@@ -15,7 +15,7 @@ chown 999 mongod.key
 # 选择第一个容器mongo1，进入mongo 容器
 docker exec -it mongo1 mongosh
 use admin
-db.auth('${USERNAME'}, '${PASSWORD}')
+db.auth('${USERNAME}', '${PASSWORD}')
 # ip 需要使用宿主机对外提供服务的ip，不然外部无法使用
 rs.initiate(
 {
