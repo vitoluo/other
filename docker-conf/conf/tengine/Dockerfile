@@ -4,7 +4,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     && apk update \
     && apk add alpine-sdk pcre-dev openssl-dev zlib-dev
 
-ENV TENGINE_VERSION 3.0.0
+ARG TENGINE_VERSION=3.0.0
 
 RUN mkdir -p /opt/tengine /opt/jemalloc \
     && curl -L "https://ghproxy.com/https://github.com/alibaba/tengine/archive/$TENGINE_VERSION.tar.gz" -o /tengine.tar.gz \
