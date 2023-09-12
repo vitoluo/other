@@ -1,16 +1,18 @@
-FROM alpine:3.16 as builder
+FROM alpine:3.18 as builder
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
     && apk update \
     && apk add alpine-sdk pcre-dev openssl-dev zlib-dev
 
-ARG TENGINE_VERSION=2.4.0
+ARG TENGINE_VERSION=3.0.0
 
-RUN mkdir -p /opt/tengine \
+RUN mkdir -p /opt/tengine /opt/jemalloc \
     && curl -L "https://ghproxy.com/https://github.com/alibaba/tengine/archive/$TENGINE_VERSION.tar.gz" -o /tengine.tar.gz \
-    && tar axf /tengine.tar.gz --strip-components=1 -C /opt/tengine
+    && tar axf /tengine.tar.gz --strip-components=1 -C /opt/tengine \
+    && curl -L "https://ghproxy.com/https://github.com/jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2" -o /jemalloc.tar.bz2 \
+    && tar axf /jemalloc.tar.bz2 --strip-components=1 -C /opt/jemalloc
 
-ARG CONFIG="--prefix=/etc/nginx \
+ENV CONFIG "--prefix=/etc/nginx \
 --sbin-path=/usr/sbin/nginx \
 --modules-path=/usr/lib/nginx/modules \
 --conf-path=/etc/nginx/nginx.conf \
@@ -24,6 +26,8 @@ ARG CONFIG="--prefix=/etc/nginx \
 --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
 --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
 --with-http_gzip_static_module \
+--with-http_v2_module \
+--with-jemalloc=/opt/jemalloc \
 --add-module=modules/ngx_http_upstream_dynamic_module \
 "
 RUN cd /opt/tengine \
@@ -33,7 +37,7 @@ RUN cd /opt/tengine \
     && rm -rf /etc/nginx/html/ \
     && strip /usr/sbin/nginx*
 
-FROM alpine:3.16
+FROM alpine:3.18
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
     && apk update \
