@@ -1,0 +1,14 @@
+services:
+  tuic:
+    container_name: tuic
+    restart: unless-stopped
+    build:
+      context: ./conf/tuic
+      args:
+        UID: 111
+        PASSWD: 222
+    ports:
+      - 1230:1230/udp
+    volumes:
+      - ./cert/fullchain.cer:/app/cert.crt:ro
+      - ./cert/key.key:/app/key.pem:ro
