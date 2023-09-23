@@ -55,12 +55,6 @@ plugins:
       size: 10240
       lazy_cache_ttl: 86400
       cache_everything: true
-  - tag: cache_seq_cn
-    type: cache
-    args:
-      size: 10240
-      lazy_cache_ttl: 86400
-      cache_everything: true
 
   - tag: from_pri
     type: query_matcher
@@ -96,7 +90,7 @@ plugins:
     type: sequence
     args:
       exec:
-        - cache_seq_cn
+        - cache
         - _pad_query
         - forward_cn
   - tag: seq_req_not_cn
@@ -104,6 +98,7 @@ plugins:
     args:
       exec:
         - ecs_tw
+        - cache
         - _pad_query
         - forward_not_cn
   - tag: seq_req_unknown
@@ -119,9 +114,6 @@ plugins:
               - if: resp_cn
                 exec:
                   - _drop_response
-        - if: resp_failed
-          exec:
-            - seq_req_cn
   - tag: seq_req_main
     type: sequence
     args:
@@ -150,7 +142,6 @@ plugins:
           else_exec:
             - ecs
         - _edns0_filter_ecs_only
-        - cache
         - _prefer_ipv4
         - seq_req_main
         - _enable_conditional_response_padding
