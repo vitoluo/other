@@ -114,6 +114,9 @@ plugins:
               - if: resp_cn
                 exec:
                   - _drop_response
+        - if: resp_failed
+          exec:
+            - seq_req_cn
   - tag: seq_req_main
     type: sequence
     args:
