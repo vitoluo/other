@@ -84,7 +84,7 @@ plugins:
   - tag: resp_failed
     type: response_matcher
     args:
-      rcode: [2]
+      rcode: [2, 3]
 
   - tag: seq_req_cn
     type: sequence
