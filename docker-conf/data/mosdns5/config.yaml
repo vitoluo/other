@@ -42,9 +42,10 @@ plugins:
   - tag: forward_cn
     type: forward
     args:
+      concurrent: 2
       upstreams:
-        - addr: 120.53.53.5
-        - addr: 121.4.4.102
+        - addr: 223.5.5.5
+        - addr: 223.6.6.6
   - tag: forward_non_cn
     type: forward
     args:
@@ -121,20 +122,22 @@ plugins:
     type: sequence
     args:
       # 屏蔽私有地址域名反查
-      - matches: 
+      - matches:
           - ptr_ip $ip_private
         exec: reject
-      # 屏蔽TYPE65与无效类型请求
+      # 屏蔽TYPE65/无效类型请求
       - matches:
           - qtype 65
+        exec: reject 3
+      - matches:
           - "qname keyword::"
         exec: reject 3
-      # 优化PRT与ANY类型请求
+      # 优化CNAME/PRT/ANY类型请求
       - matches:
-          - qtype 12 255
+          - qtype 5 12 255
         exec: goto seq_site_direct
       # 屏蔽私有域名与广告
-      - matches: 
+      - matches:
           - qname $site_private $site_reject
         exec: reject 3
       - exec: $hosts
