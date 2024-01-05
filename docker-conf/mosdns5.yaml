@@ -2,14 +2,14 @@ services:
   mosdns:
     container_name: mosdns
     restart: unless-stopped
-    image: irinesistiana/mosdns:v4.5.3
+    image: irinesistiana/mosdns:v5.3.1
     environment:
-      TZ: ${TZ}
+      TZ: Asia/Shanghai
     dns:
       - 223.5.5.5
       - 223.6.6.6
     ports:
       - 5353:53/udp
     volumes:
-      - ./data/mosdns:/etc/mosdns
+      - ./data/mosdns5:/etc/mosdns
     entrypoint: /etc/mosdns/entrypoint.sh

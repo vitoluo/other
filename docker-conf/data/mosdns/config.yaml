@@ -2,9 +2,6 @@ log:
   level: warn
 
 data_providers:
-  - tag: private_ip
-    file: ./geoip_private.txt
-    auto_reload: true
   - tag: cn_ip
     file: ./geoip_cn.txt
     auto_reload: true
@@ -17,8 +14,17 @@ data_providers:
   - tag: ncn_site
     file: ./geosite_geolocation-!cn.txt
     auto_reload: true
+  - tag: hosts
+    file: ./hosts.txt
+    auto_reload: true
 
 plugins:
+  - tag: hosts
+    type: hosts
+    args:
+      hosts:
+        - provider:hosts
+
   - tag: forward_cn
     type: fast_forward
     args:
@@ -32,11 +38,7 @@ plugins:
         - addr: udpme://208.67.222.222
         - addr: udpme://208.67.220.220
 
-  - tag: ecs
-    type: ecs
-    args:
-      auto: true
-  - tag: ecs_pri
+  - tag: ecs_cn
     type: ecs
     args:
       ipv4: 61.139.2.69
@@ -52,15 +54,28 @@ plugins:
   - tag: cache
     type: cache
     args:
-      size: 10240
+      size: 8192
       lazy_cache_ttl: 86400
-      cache_everything: true
+      lazy_cache_reply_ttl: 1
 
-  - tag: from_pri
+  - tag: qtype12
     type: query_matcher
     args:
-      client_ip:
-        - "provider:private_ip"
+      qtype: [12]
+  - tag: qtype65
+    type: query_matcher
+    args:
+      qtype: [65]
+  - tag: qtype255
+    type: query_matcher
+    args:
+      qtype: [255]
+
+  - tag: req_not_domain
+    type: query_matcher
+    args:
+      domain:
+        - "keyword::"
   - tag: req_ad
     type: query_matcher
     args:
@@ -76,6 +91,7 @@ plugins:
     args:
       domain:
         - "provider:ncn_site"
+
   - tag: resp_cn
     type: response_matcher
     args:
@@ -90,16 +106,13 @@ plugins:
     type: sequence
     args:
       exec:
-        - cache
-        - _pad_query
+        - ecs_cn
         - forward_cn
   - tag: seq_req_not_cn
     type: sequence
     args:
       exec:
         - ecs_tw
-        - cache
-        - _pad_query
         - forward_not_cn
   - tag: seq_req_unknown
     type: sequence
@@ -135,25 +148,32 @@ plugins:
     type: sequence
     args:
       exec:
+        - _misc_optm
+        - hosts
+        # 屏蔽TYPE65与无效类型请求
+        - if: "[qtype65] || (req_not_domain)"
+          exec:
+            - _new_nxdomain_response
+            - _return
+        # 优化PRT与ANY类型请求
+        - if: "[qtype12] || [qtype255]"
+          exec:
+            - seq_req_cn
+            - _return
+        # 过滤广告
         - if: req_ad
           exec:
             - _new_nxdomain_response
             - _return
-        - if: from_pri
-          exec:
-            - ecs_pri
-          else_exec:
-            - ecs
-        - _edns0_filter_ecs_only
+        - cache
         - _prefer_ipv4
         - seq_req_main
-        - _enable_conditional_response_padding
 
 servers:
   - exec: main_sequence
     listeners:
       - protocol: udp
-        addr: 127.0.0.1:5353
+        addr: :53
 
 api:
   http: 127.0.0.1:8080

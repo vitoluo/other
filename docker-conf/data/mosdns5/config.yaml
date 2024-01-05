@@ -1,0 +1,151 @@
+log:
+  level: warn
+
+plugins:
+  - tag: ip_private
+    type: ip_set
+    args:
+      files:
+        - ./ip_private.txt
+  - tag: ip_cn
+    type: ip_set
+    args:
+      files:
+        - ./ip_cn.txt
+  - tag: site_private
+    type: domain_set
+    args:
+      files:
+        - ./site_private.txt
+  - tag: site_reject
+    type: domain_set
+    args:
+      files:
+        - ./site_reject.txt
+  - tag: site_direct
+    type: domain_set
+    args:
+      files:
+        - ./site_direct.txt
+  - tag: site_proxy
+    type: domain_set
+    args:
+      files:
+        - ./site_proxy.txt
+
+  - tag: hosts
+    type: hosts
+    args:
+      files:
+        - ./hosts.txt
+
+  - tag: forward_cn
+    type: forward
+    args:
+      upstreams:
+        - addr: 120.53.53.5
+        - addr: 121.4.4.102
+  - tag: forward_non_cn
+    type: forward
+    args:
+      concurrent: 3
+      upstreams:
+        - addr: tcp://208.67.222.222:443
+          enable_pipeline: true
+        - addr: tcp://208.67.220.220:443
+          enable_pipeline: true
+        - addr: tls://208.67.222.222
+          enable_pipeline: true
+        - addr: tls://208.67.220.220
+          enable_pipeline: true
+
+  - tag: seq_site_direct
+    type: sequence
+    args:
+      - exec: ecs 61.139.2.69
+      - exec: $forward_cn
+
+  - tag: seq_site_proxy
+    type: sequence
+    args:
+      - exec: ecs 168.95.1.1
+      - exec: $forward_non_cn
+
+  - tag: parallel_1
+    type: sequence
+    args:
+      - exec: jump seq_site_direct
+      - matches:
+          - "!resp_ip $ip_cn"
+        exec: drop_resp
+
+  - tag: parallel_2
+    type: sequence
+    args:
+      - exec: jump seq_site_proxy
+      - matches:
+          - resp_ip $ip_cn
+        exec: reject 2
+
+  - tag: parallel
+    type: fallback
+    args:
+      primary: parallel_1
+      secondary: parallel_2
+      threshold: 200
+      always_standby: true
+
+  - tag: seq_site_unknown
+    type: sequence
+    args:
+      - exec: $parallel
+      - matches:
+          - rcode 2
+        exec: goto seq_site_direct
+
+  - tag: seq_site_main
+    type: sequence
+    args:
+      # 直连域名
+      - matches:
+          - qname $site_direct
+        exec: goto seq_site_direct
+      # 需代理域名
+      - matches:
+          - qname $site_proxy
+        exec: goto seq_site_proxy
+      # 其他域名
+      - exec: goto seq_site_unknown
+
+  - tag: main
+    type: sequence
+    args:
+      # 屏蔽私有地址域名反查
+      - matches: 
+          - ptr_ip $ip_private
+        exec: reject
+      # 屏蔽TYPE65与无效类型请求
+      - matches:
+          - qtype 65
+          - "qname keyword::"
+        exec: reject 3
+      # 优化PRT与ANY类型请求
+      - matches:
+          - qtype 12 255
+        exec: goto seq_site_direct
+      # 屏蔽私有域名与广告
+      - matches: 
+          - qname $site_private $site_reject
+        exec: reject 3
+      - exec: $hosts
+      - exec: cache 8192
+      - matches:
+          - has_resp
+        exec: accept
+      - exec: prefer_ipv4
+      - exec: goto seq_site_main
+
+  - type: udp_server
+    args:
+      entry: main
+      listen: :53
