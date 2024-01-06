@@ -2,17 +2,23 @@ log:
   level: warn
 
 data_providers:
-  - tag: cn_ip
+  - tag: ip_private
+    file: ./geoip_private.txt
+    auto_reload: true
+  - tag: ip_cn
     file: ./geoip_cn.txt
     auto_reload: true
-  - tag: ad_site
+  - tag: site_private
+    file: ./geosite_private.txt
+    auto_reload: true
+  - tag: site_ads
     file: ./geosite_category-ads-all.txt
     auto_reload: true
-  - tag: cn_site
+  - tag: site_cn
     file: ./geosite_cn.txt
     auto_reload: true
-  - tag: ncn_site
-    file: ./geosite_geolocation-!cn.txt
+  - tag: site_gfw
+    file: ./geosite_gfw.txt
     auto_reload: true
   - tag: hosts
     file: ./hosts.txt
@@ -35,10 +41,17 @@ plugins:
     type: fast_forward
     args:
       upstream:
+        - addr: udpme://8.8.8.8
+        - addr: udpme://8.8.4.4
         - addr: udpme://208.67.222.222
         - addr: udpme://208.67.220.220
 
-  - tag: ecs_cn
+  - tag: ecs_origin
+    type: ecs
+    args:
+      auto: true
+      force_overwrite: false
+  - tag: ecs_private
     type: ecs
     args:
       ipv4: 61.139.2.69
@@ -57,62 +70,83 @@ plugins:
       size: 8192
       lazy_cache_ttl: 86400
       lazy_cache_reply_ttl: 1
+      cache_everything: true
 
-  - tag: qtype12
+  - tag: qtype_cname
+    type: query_matcher
+    args:
+      qtype: [5]
+  - tag: qtype_prt
     type: query_matcher
     args:
       qtype: [12]
-  - tag: qtype65
+  - tag: qtype_https
     type: query_matcher
     args:
       qtype: [65]
-  - tag: qtype255
+  - tag: qtype_any
     type: query_matcher
     args:
       qtype: [255]
 
-  - tag: req_not_domain
+  - tag: ori_private
+    type: query_matcher
+    args:
+      client_ip:
+        - "provider:ip_private"
+
+  - tag: req_non_domain
     type: query_matcher
     args:
       domain:
         - "keyword::"
-  - tag: req_ad
+  - tag: req_private
     type: query_matcher
     args:
       domain:
-        - "provider:ad_site"
+        - "provider:site_private"
+  - tag: req_ads
+    type: query_matcher
+    args:
+      domain:
+        - "provider:site_ads"
   - tag: req_cn
     type: query_matcher
     args:
       domain:
-        - "provider:cn_site"
-  - tag: req_not_cn
+        - "provider:site_cn"
+  - tag: req_gfw
     type: query_matcher
     args:
       domain:
-        - "provider:ncn_site"
+        - "provider:site_gfw"
 
   - tag: resp_cn
     type: response_matcher
     args:
       ip:
-        - "provider:cn_ip"
-  - tag: resp_failed
-    type: response_matcher
-    args:
-      rcode: [2, 3]
+        - "provider:ip_cn"
 
+  - tag: seq_add_ecs
+    type: sequence
+    args:
+      exec:
+        - if: ori_private
+          exec:
+            - ecs_private
+          else_exec:
+            - ecs_origin
   - tag: seq_req_cn
     type: sequence
     args:
       exec:
-        - ecs_cn
+        - _pad_query
         - forward_cn
-  - tag: seq_req_not_cn
+  - tag: seq_req_gfw
     type: sequence
     args:
       exec:
-        - ecs_tw
+        - _pad_query
         - forward_not_cn
   - tag: seq_req_unknown
     type: sequence
@@ -120,16 +154,14 @@ plugins:
       exec:
         - parallel:
             - - seq_req_cn
-              - if: "(! resp_cn) && [_response_valid_answer]"
-                exec:
-                  - _drop_response
-            - - seq_req_not_cn
               - if: resp_cn
                 exec:
-                  - _drop_response
-        - if: resp_failed
-          exec:
-            - seq_req_cn
+                  - _return
+            - - seq_req_gfw
+              - if: "! resp_cn"
+                exec:
+                  - _return
+        - seq_req_cn
   - tag: seq_req_main
     type: sequence
     args:
@@ -138,9 +170,9 @@ plugins:
           exec:
             - seq_req_cn
             - _return
-        - if: req_not_cn
+        - if: req_gfw
           exec:
-            - seq_req_not_cn
+            - seq_req_gfw
             - _return
         - seq_req_unknown
 
@@ -148,24 +180,26 @@ plugins:
     type: sequence
     args:
       exec:
-        - _misc_optm
+        - _edns0_filter_ecs_only
         - hosts
-        # 屏蔽TYPE65与无效类型请求
-        - if: "[qtype65] || (req_not_domain)"
+        # 屏蔽TYPE65/无效类型请求
+        - if: "qtype_https || req_non_domain"
           exec:
             - _new_nxdomain_response
             - _return
-        # 优化PRT与ANY类型请求
-        - if: "[qtype12] || [qtype255]"
+        # 屏蔽私有域名/广告
+        - if: "req_private || req_ads"
+          exec:
+            - _new_nxdomain_response
+            - _return
+        # 附加ecs
+        - seq_add_ecs
+        - cache
+        # 优化CNAME/PRT/ANY类型请求
+        - if: "qtype_cname || qtype_prt || qtype_any"
           exec:
             - seq_req_cn
             - _return
-        # 过滤广告
-        - if: req_ad
-          exec:
-            - _new_nxdomain_response
-            - _return
-        - cache
         - _prefer_ipv4
         - seq_req_main
 

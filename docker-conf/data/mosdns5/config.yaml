@@ -44,8 +44,8 @@ plugins:
     args:
       concurrent: 2
       upstreams:
-        - addr: 223.5.5.5
-        - addr: 223.6.6.6
+        - addr: 120.53.53.5
+        - addr: 121.4.4.102
   - tag: forward_non_cn
     type: forward
     args:
@@ -55,9 +55,7 @@ plugins:
           enable_pipeline: true
         - addr: tcp://208.67.220.220:443
           enable_pipeline: true
-        - addr: tls://208.67.222.222
-          enable_pipeline: true
-        - addr: tls://208.67.220.220
+        - addr: tcp://208.67.222.222:5353
           enable_pipeline: true
 
   - tag: seq_site_direct
