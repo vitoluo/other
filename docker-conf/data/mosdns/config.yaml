@@ -154,17 +154,15 @@ plugins:
       exec:
         - parallel:
             - - seq_req_cn
-              - if: resp_cn
-                exec:
-                  - _return
-                else_exec:
-                  - _drop_response
-            - - seq_req_gfw
               - if: "! resp_cn"
                 exec:
-                  - _return
-                else_exec:
                   - _drop_response
+            - - seq_req_gfw
+              - if: "resp_cn"
+                exec:
+                  - _drop_response
+        - if: "[_response_valid_answer]"
+          exec: _return
         - seq_req_cn
   - tag: seq_req_main
     type: sequence
