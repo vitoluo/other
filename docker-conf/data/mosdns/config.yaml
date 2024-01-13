@@ -37,27 +37,25 @@ plugins:
       upstream:
         - addr: 120.53.53.5
         - addr: 121.4.4.102
-  - tag: forward_not_cn
+  - tag: forward_non_cn
     type: fast_forward
     args:
       upstream:
         - addr: udpme://8.8.8.8
         - addr: udpme://8.8.4.4
-        - addr: udpme://208.67.222.222
-        - addr: udpme://208.67.220.220
 
   - tag: ecs_origin
     type: ecs
     args:
       auto: true
       force_overwrite: false
-  - tag: ecs_private
+  - tag: ecs_cn
     type: ecs
     args:
       ipv4: 61.139.2.69
       ipv6: 240e:56:4000:8000::69
       force_overwrite: true
-  - tag: ecs_tw
+  - tag: ecs_non_cn
     type: ecs
     args:
       ipv4: 168.95.1.1
@@ -133,7 +131,7 @@ plugins:
       exec:
         - if: ori_private
           exec:
-            - ecs_private
+            - ecs_cn
           else_exec:
             - ecs_origin
   - tag: seq_req_cn
@@ -146,8 +144,9 @@ plugins:
     type: sequence
     args:
       exec:
+        - ecs_non_cn
         - _pad_query
-        - forward_not_cn
+        - forward_non_cn
   - tag: seq_req_unknown
     type: sequence
     args:
