@@ -70,22 +70,10 @@ plugins:
       lazy_cache_reply_ttl: 1
       cache_everything: true
 
-  - tag: qtype_cname
+  - tag: qtype_a_or_aaaa
     type: query_matcher
     args:
-      qtype: [5]
-  - tag: qtype_prt
-    type: query_matcher
-    args:
-      qtype: [12]
-  - tag: qtype_https
-    type: query_matcher
-    args:
-      qtype: [65]
-  - tag: qtype_any
-    type: query_matcher
-    args:
-      qtype: [255]
+      qtype: [1,28]
 
   - tag: ori_private
     type: query_matcher
@@ -183,21 +171,16 @@ plugins:
       exec:
         - _edns0_filter_ecs_only
         - hosts
-        # 屏蔽TYPE65/无效类型请求
-        - if: "qtype_https || req_non_domain"
-          exec:
-            - _new_nxdomain_response
-            - _return
-        # 屏蔽私有域名/广告
-        - if: "req_private || req_ads"
+        # 屏蔽无效类型请求/私有域名/广告
+        - if: "req_non_domain || req_private || req_ads"
           exec:
             - _new_nxdomain_response
             - _return
         # 附加ecs
         - seq_add_ecs
         - cache
-        # 优化CNAME/PRT/ANY类型请求
-        - if: "qtype_cname || qtype_prt || qtype_any"
+        # 非ip请求一律走国内
+        - if: "! qtype_a_or_aaaa"
           exec:
             - seq_req_cn
             - _return
