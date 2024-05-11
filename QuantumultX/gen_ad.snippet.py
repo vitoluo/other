@@ -72,7 +72,7 @@ if __name__ == "__main__":
         f.write("#!homepage=https://github.com/vitoluo/other")
         f.write("\n")
         f.write(
-            "#!raw-url=https://github.com/vitoluo/other/raw/master/QuantumultX/rewrite/ad.snippet"
+            "#!raw-url=https://github.com/vitoluo/other/raw/master/QuantumultX/ad.snippet"
         )
         f.write("\n")
         f.write(
