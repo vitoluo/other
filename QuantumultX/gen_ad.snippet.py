@@ -11,7 +11,7 @@ def read_from_line(file_path, start_line):
 
 if __name__ == "__main__":
     sourceFile = "D:\download\chongxie.txt"
-    targetFile = "D:\download\\ad.snippet"
+    targetFile = "ad.snippet"
     needAds = [
         "12306",
         "百度贴吧",

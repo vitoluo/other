@@ -88,7 +88,7 @@
 # 我的页面悬浮广告
 ^https?:\/\/yunbusiness\.ccb\.com\/basic_service\/txCtrl\? url response-body "TAG_AD_INFO" response-body "TAG_AD_INFO0"
 # 内置饿了么外卖弹窗
-^https?:\/\/g\.alicdn\.com\/.*o2o-ad url script-response-body https://raw.githubusercontent.com/zirawell/app_remove_ads/main/All/js/alicdn.js
+^https?:\/\/g\.alicdn\.com\/.*o2o-ad url script-response-body https://raw.githubusercontent.com/zirawell/Ad-Cleaner/main/Collection/js/alicdn.js
 
 # > 京东
 # hostname = api.m.jd.com, dns.jd.com
@@ -242,16 +242,16 @@
 ^https?:\/\/iadmusicmatvideo\.music\.126\.net url reject
 ^https?:\/\/interface3?\.music\.163\.com\/eapi\/(community\/friends\/fans-group\/artist\/group\/get|user\/sub\/artist|music\/songshare\/text\/recommend\/get|mine\/applet\/redpoint|resniche\/position\/play\/new\/get) url reject-dict
 # (评论区｜评论右上角热评馆｜播放页评论)｜回复
-^https?:\/\/interface3?\.music\.163.com\/eapi\/(comment\/(feed\/inserted|hotcomment\/collect|tips\/v2\/get)|v\d\/content\/exposure\/comment\/banner) url reject-dict
+^https?:\/\/interface3?\.music\.163\.com\/eapi\/(comment\/(feed\/inserted|hotcomment\/collect|tips\/v\d\/get)|v\d\/content\/exposure\/comment\/banner) url reject-dict
 # 播放页live或直播｜(首页免或vip图标｜小提示)
-^https?:\/\/interface3?\.music\.163.com\/eapi\/(mlivestream\/entrance\/playpage|link\/(position\/show\/(strategy|resource)|scene\/show)) url reject-dict
+^https?:\/\/interface3?\.music\.163\.com\/eapi\/(mlivestream\/entrance\/playpage|link\/(position\/show\/(strategy|resource)|scene\/show)) url reject-dict
 # 黑胶弹窗｜会员试用
-^https?:\/\/interface3?\.music\.163.com\/eapi\/(vipcenter\/tspopup\/get|vipauth\/app\/auth|music-vip-membership\/client\/vip\/info|zone\/songplay\/entry\/get) url reject-dict
+^https?:\/\/interface3?\.music\.163\.com\/eapi\/(vipcenter\/tspopup\/get|vipauth\/app\/auth|music-vip-membership\/client\/vip\/info|zone\/songplay\/entry\/get) url reject-dict
 # 搜索页热搜卡片｜猜你喜欢｜我的应用下方提醒
-^https?:\/\/interface3?\.music\.163.com\/w?e?api\/(search\/(chart|default|rcmd\/keyword|specialkeyword)|(resource-exposure\/|middle\/clientcfg\/config)|activity\/bonus\/playpage\/time\/query) url reject-dict
+^https?:\/\/interface3?\.music\.163\.com\/w?e?api\/(search\/(chart|default|rcmd\/keyword|specialkeyword)|(resource-exposure\/|middle\/clientcfg\/config)|activity\/bonus\/playpage\/time\/query) url reject-dict
 # 侧边栏
 ^https?:\/\/interface3?\.music\.163\.com\/eapi\/(side-bar\/mini-program\/music-service\/account|delivery\/batch-deliver) url reject-dict
-^https?:\/\/(ipv4|interface3?)\.music\.163.com\/eapi\/ad url reject-dict
+^https?:\/\/(ipv4|interface3?)\.music\.163\.com\/eapi\/ad url reject-dict
 
 # > 微信
 # hostname = mp.weixin.qq.com, weixin110.qq.com, security.wechat.com
@@ -339,4 +339,4 @@
 ^https?:\/\/cloud\.189\.cn\/include\/splash\/ url reject
 ^https?:\/\/zt-app\.go189\.cn\/zt-app\/welcome\/.*?Animation url reject-img
 
-hostname = ad.12306.cn,tiebac.baidu.com,api2.helper.qq.com,fuss10.elemecdn.com,bk.bingo.qq.com,poplayer.template.alibaba.com,webappcfg.paas.cmbchina.com,mp.weixin.qq.com,api.club.lenovo.cn,btrace.qq.com,api.live.bilibili.com,ipv4.music.163.com,api.m.mi.com,lives.l.qq.com,guide-acs.m.taobao.com,api.bilibili.com,mmgr.gtimg.com,qidian.qpic.cn,g.alicdn.com,img.meituan.net,117.147.199.59,y.gtimg.cn,apimobile.meituan.com,asp.cntv.myalicdn.com,mbasecc.bcs.cmbchina.com,www.meituan.net,security.wechat.com,adproxy.autohome.com.cn,amdc.m.taobao.com,wmapi.meituan.com,www1.elecfans.com,api.m.jd.com,59.111.*,user-api.smzdm.com,p*.meituan.net,qianbao.smzdm.com,mi.gdt.qq.com,magev6.if.qidian.com,api-mifit.huami.com,article-api.smzdm.com,ssl.kohsocialapp.qq.com,acs.m.taobao.com,home.mi.com,mlife.jf365.boc.cn,mobile.yangkeduo.com,m*.amap.com,ams-cdn.cdtft.cn,haojia-api.smzdm.com,3gimg.qq.com,s3plus.meituan.net,app2.autoimg.cn,homepage-api.smzdm.com,imgcache.qq.com,*.163jiasu.com,heic.alicdn.com,optimus-ads.amap.com,apimobile.meituan.net,osg-static.sgcc.com.cn,mage.if.qidian.com,zt-app.go189.cn,bla.gtimg.com,splashqqlive.gtimg.com,api.yangkeduo.com,*.beacon.qq.com,qzonestyle.gtimg.cn,img.alicdn.com,mbs.boc.cn,dns.jd.com,weixin110.qq.com,grpc.biliapi.net,api-mifit-cn2.huami.com,discuz.gtimg.cn,app.bilibili.com,wmapi.meituan.net,yunbusiness.ccb.com,api.pinduoduo.com,nr-op.elemecdn.com,qt.qq.com,mbasecc.bas.cmbchina.com,gw.alicdn.com,elemecdn.com,open-cms-api.quark.cn,app-api.smzdm.com,vv.video.qq.com,interface*.music.163.com,open-cms-api.uc.cn,cloud.189.cn,112.13.119.52,shopapi.io.mi.com,intellicc.bcs.cmbchina.com,flowplus.meituan.net,api.jr.mi.com,cube.elemecdn.com,mtteve.beacon.qq.com,httpdns.n.netease.com
+hostname = nr-op.elemecdn.com,api.pinduoduo.com,app.bilibili.com,intellicc.bcs.cmbchina.com,imgcache.qq.com,open-cms-api.uc.cn,mmgr.gtimg.com,wmapi.meituan.com,ams-cdn.cdtft.cn,security.wechat.com,asp.cntv.myalicdn.com,*.163jiasu.com,elemecdn.com,interface*.music.163.com,flowplus.meituan.net,qidian.qpic.cn,httpdns.n.netease.com,y.gtimg.cn,discuz.gtimg.cn,api.live.bilibili.com,api-mifit-cn2.huami.com,api.club.lenovo.cn,img.meituan.net,heic.alicdn.com,117.147.199.59,mbs.boc.cn,g.alicdn.com,dns.jd.com,qianbao.smzdm.com,magev6.if.qidian.com,haojia-api.smzdm.com,mtteve.beacon.qq.com,user-api.smzdm.com,img.alicdn.com,3gimg.qq.com,wmapi.meituan.net,osg-static.sgcc.com.cn,p*.meituan.net,qt.qq.com,acs.m.taobao.com,api.m.jd.com,ipv4.music.163.com,api.bilibili.com,weixin110.qq.com,api.jr.mi.com,ssl.kohsocialapp.qq.com,apimobile.meituan.net,guide-acs.m.taobao.com,api.m.mi.com,tiebac.baidu.com,mlife.jf365.boc.cn,mp.weixin.qq.com,app-api.smzdm.com,app2.autoimg.cn,bla.gtimg.com,article-api.smzdm.com,cube.elemecdn.com,59.111.*,adproxy.autohome.com.cn,ad.12306.cn,m*.amap.com,poplayer.template.alibaba.com,mage.if.qidian.com,vv.video.qq.com,amdc.m.taobao.com,www.meituan.net,zt-app.go189.cn,api.yangkeduo.com,api2.helper.qq.com,mobile.yangkeduo.com,splashqqlive.gtimg.com,gw.alicdn.com,optimus-ads.amap.com,grpc.biliapi.net,shopapi.io.mi.com,yunbusiness.ccb.com,*.beacon.qq.com,lives.l.qq.com,fuss10.elemecdn.com,home.mi.com,bk.bingo.qq.com,112.13.119.52,www1.elecfans.com,mbasecc.bas.cmbchina.com,cloud.189.cn,homepage-api.smzdm.com,s3plus.meituan.net,mbasecc.bcs.cmbchina.com,apimobile.meituan.com,open-cms-api.quark.cn,mi.gdt.qq.com,btrace.qq.com,api-mifit.huami.com,webappcfg.paas.cmbchina.com,qzonestyle.gtimg.cn
