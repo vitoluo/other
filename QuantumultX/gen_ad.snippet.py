@@ -43,6 +43,7 @@ if __name__ == "__main__":
         "中国银行",
         "中国银行 缤纷生活",
         "中国电信",
+        "知乎",
     }
 
     if os.path.exists(targetFile):
@@ -59,8 +60,6 @@ if __name__ == "__main__":
         f.write(
             "#!raw-url=https://github.com/vitoluo/other/raw/master/QuantumultX/ad.snippet"
         )
-        f.write("\n")
-        f.write("#!date=" + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
         f.write("\n")
         f.write("#!remark=原始规则地址：" + sourceUrl)
         f.write("\n")
