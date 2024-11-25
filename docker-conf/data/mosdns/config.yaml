@@ -35,8 +35,8 @@ plugins:
     type: fast_forward
     args:
       upstream:
-        - addr: 120.53.53.5
-        - addr: 121.4.4.102
+        - addr: 61.139.2.69
+        - addr: 218.6.200.139
   - tag: forward_non_cn
     type: fast_forward
     args:
@@ -58,8 +58,8 @@ plugins:
   - tag: ecs_non_cn
     type: ecs
     args:
-      ipv4: 168.95.1.1
-      ipv6: 2001:b000:168::1
+      ipv4: 45.67.219.208
+      ipv6: 2a04:bdc7:100:70::70
       force_overwrite: true
 
   - tag: cache
@@ -73,7 +73,7 @@ plugins:
   - tag: qtype_a_or_aaaa
     type: query_matcher
     args:
-      qtype: [1,28]
+      qtype: [1, 28, 64, 65]
 
   - tag: ori_private
     type: query_matcher
@@ -171,8 +171,8 @@ plugins:
       exec:
         - _edns0_filter_ecs_only
         - hosts
-        # 屏蔽无效类型请求/私有域名/广告
-        - if: "req_non_domain || req_private || req_ads"
+        # 屏蔽无效类型请求/私有域名
+        - if: "req_non_domain || req_private"
           exec:
             - _new_nxdomain_response
             - _return
