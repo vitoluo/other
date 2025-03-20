@@ -86,6 +86,11 @@ plugins:
     args:
       domain:
         - "keyword::"
+  - tag: req_secure_dns
+    type: query_matcher
+    args:
+      domain:
+        - "full:_dns.resolver.arpa"
   - tag: req_private
     type: query_matcher
     args:
@@ -171,8 +176,8 @@ plugins:
       exec:
         - _edns0_filter_ecs_only
         - hosts
-        # 屏蔽无效类型请求/私有域名
-        - if: "req_non_domain || req_private"
+        # 屏蔽无效类型请求/升级安全DNS/私有域名
+        - if: "req_non_domain || req_secure_dns || req_private"
           exec:
             - _new_nxdomain_response
             - _return
