@@ -8,6 +8,9 @@ data_providers:
   - tag: ip_cn
     file: ./geoip_cn.txt
     auto_reload: true
+  - tag: ip_cloudflare
+    file: ./geoip_cloudflare.txt
+    auto_reload: true
   - tag: site_private
     file: ./geosite_private.txt
     auto_reload: true
@@ -70,6 +73,16 @@ plugins:
       lazy_cache_reply_ttl: 1
       cache_everything: true
 
+  - tag: cache_reverse_lookup
+    type: reverse_lookup
+    args:
+      size: 65535
+
+  - tag: cf_ip
+    type: blackhole
+    args:
+      ipv4: [104.19.35.127, 104.17.226.175, 141.101.122.199]
+
   - tag: qtype_a_or_aaaa
     type: query_matcher
     args:
@@ -117,6 +130,11 @@ plugins:
     args:
       ip:
         - "provider:ip_cn"
+  - tag: resp_cf
+    type: response_matcher
+    args:
+      ip:
+        - "provider:ip_cloudflare"
 
   - tag: seq_add_ecs
     type: sequence
@@ -174,6 +192,7 @@ plugins:
     type: sequence
     args:
       exec:
+        - _misc_optm
         - _edns0_filter_ecs_only
         - hosts
         # 屏蔽无效类型请求/升级安全DNS/私有域名
@@ -183,6 +202,7 @@ plugins:
             - _return
         # 附加ecs
         - seq_add_ecs
+        - cache_reverse_lookup
         - cache
         # 非ip请求一律走国内
         - if: "! qtype_a_or_aaaa"
@@ -191,6 +211,9 @@ plugins:
             - _return
         - _prefer_ipv4
         - seq_req_main
+        - if: resp_cf
+          exec:
+            - cf_ip
 
 servers:
   - exec: main_sequence

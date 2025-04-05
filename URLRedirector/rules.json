@@ -2,53 +2,63 @@
   "version": "2.0",
   "rules": [
     {
-      "origin": "//www.google.com/recaptcha/",
-      "target": "//www.recaptcha.net/recaptcha/",
+      "origin": "ajax.googleapis.com",
+      "target": "ajax.loli.net",
       "enable": true
     },
     {
-      "origin": "//ajax.googleapis.com/",
-      "target": "//gapis.geekzu.org/ajax/",
+      "origin": "fonts.googleapis.com",
+      "target": "fonts.googleapis.cn",
       "enable": true
     },
     {
-      "origin": "//*.gravatar.com/avatar/",
-      "target": "//sdn.geekzu.org/avatar/",
+      "origin": "fonts.gstatic.com",
+      "target": "fonts.googleapis.cn",
       "enable": true
     },
     {
-      "origin": "//fonts.googleapis.com/",
-      "target": "//fonts.geekzu.org/",
+      "origin": "themes.googleusercontent.com",
+      "target": "themes.loli.net",
       "enable": true
     },
     {
-      "origin": "//fonts.gstatic.com/",
-      "target": "//gapis.geekzu.org/g-fonts/",
+      "origin": "secure.gravatar.com",
+      "target": "gravatar.loli.net",
       "enable": true
     },
     {
-      "origin": "//themes.googleusercontent.com/",
-      "target": "//gapis.geekzu.org/g-themes/",
+      "origin": "www.gstatic.com",
+      "target": "www.gstatic.cn",
       "enable": true
     },
     {
-      "origin": "//code.jquery.com/ui/",
-      "target": "//cdn.staticfile.org/jqueryui/",
+      "origin": "developers.google.com",
+      "target": "developers.google.cn",
       "enable": true
     },
     {
-      "origin": "//maxcdn.bootstrapcdn.com/font-awesome/",
-      "target": "//cdn.staticfile.org/font-awesome/",
+      "origin": "developer.android.com",
+      "target": "developer.android.google.cn",
       "enable": true
     },
     {
-      "origin": "//maxcdn.bootstrapcdn.com/bootstrap/",
-      "target": "//cdn.staticfile.org/twitter-bootstrap/",
+      "origin": "source.android.com",
+      "target": "source.android.google.cn",
       "enable": true
     },
     {
-      "origin": "//cdnjs.cloudflare.com/ajax/libs/",
-      "target": "//cdn.staticfile.org/",
+      "origin": "www.google.com/recaptcha",
+      "target": "www.recaptcha.net/recaptcha",
+      "enable": true
+    },
+    {
+      "origin": "cdnjs.cloudflare.com",
+      "target": "s4.zstatic.net",
+      "enable": true
+    },
+    {
+      "origin": "unpkg.com/(\\w+)@([0-9.]+)/",
+      "target": "registry.npmmirror.com/$1/$2/files/",
       "enable": true
     }
   ]
