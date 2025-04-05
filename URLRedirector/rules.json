@@ -57,7 +57,7 @@
       "enable": true
     },
     {
-      "origin": "unpkg.com/(\\w+)@([0-9.]+)/",
+      "origin": "unpkg.com/([\\w-]+)@([0-9.]+)/",
       "target": "registry.npmmirror.com/$1/$2/files/",
       "enable": true
     }
