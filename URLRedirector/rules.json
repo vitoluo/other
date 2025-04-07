@@ -13,7 +13,7 @@
     },
     {
       "origin": "fonts.gstatic.com",
-      "target": "fonts.googleapis.cn",
+      "target": "gstatic.loli.net",
       "enable": true
     },
     {
