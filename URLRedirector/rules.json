@@ -57,8 +57,33 @@
       "enable": true
     },
     {
+      "origin": "cdn.bootcss.com",
+      "target": "s4.zstatic.net/ajax/libs",
+      "enable": true
+    },
+    {
+      "origin": "cdn.bootcdn.net",
+      "target": "s4.zstatic.net/ajax/libs",
+      "enable": true
+    },
+    {
+      "origin": "cdn.staticfile.net",
+      "target": "s4.zstatic.net/ajax/libs",
+      "enable": true
+    },
+    {
+      "origin": "cdn.staticfile.net",
+      "target": "s4.zstatic.net/ajax/libs",
+      "enable": true
+    },
+    {
+      "origin": "cdn.jsdelivr.com",
+      "target": "cdn.jsdmirror.com",
+      "enable": true
+    },
+    {
       "origin": "unpkg.com",
-      "target": "s4.zstatic.net/npm",
+      "target": "cdn.jsdmirror.com/npm",
       "enable": true
     },
     {
