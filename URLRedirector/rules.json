@@ -72,7 +72,7 @@
       "enable": true
     },
     {
-      "origin": "cdn.staticfile.net",
+      "origin": "cdn.staticfile.org",
       "target": "s4.zstatic.net/ajax/libs",
       "enable": true
     },
