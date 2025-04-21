@@ -77,7 +77,7 @@
       "enable": true
     },
     {
-      "origin": "cdn.jsdelivr.com",
+      "origin": "cdn.jsdelivr.net",
       "target": "cdn.jsdmirror.com",
       "enable": true
     },
