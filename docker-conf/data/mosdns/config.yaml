@@ -1,5 +1,6 @@
 log:
   level: warn
+  file: /var/log/mosdns.log
 
 data_providers:
   - tag: ip_private
@@ -11,6 +12,8 @@ data_providers:
   - tag: ip_cloudflare
     file: ./geoip_cloudflare.txt
     auto_reload: true
+  - tag: ip_akamai
+    file: ./ip_akamai.txt
   - tag: site_private
     file: ./geosite_private.txt
     auto_reload: true
@@ -46,6 +49,12 @@ plugins:
       upstream:
         - addr: udpme://8.8.8.8
         - addr: udpme://8.8.4.4
+  - tag: forward_akamai
+    type: fast_forward
+    args:
+      upstream:
+        - addr: udpme://168.95.1.1
+        - addr: udpme://168.95.192.1
 
   - tag: ecs_origin
     type: ecs
@@ -81,7 +90,7 @@ plugins:
   - tag: cf_ip
     type: blackhole
     args:
-      ipv4: [104.19.35.127, 104.17.226.175, 141.101.122.199]
+      ipv4: [162.159.36.75]
 
   - tag: qtype_a_or_aaaa
     type: query_matcher
@@ -135,6 +144,14 @@ plugins:
     args:
       ip:
         - "provider:ip_cloudflare"
+  - tag: resp_akamai
+    type: response_matcher
+    args:
+      ip:
+        - "provider:ip_akamai"
+      cname:
+        - akamai.net
+        - akamaiedge.net
 
   - tag: seq_add_ecs
     type: sequence
@@ -174,7 +191,7 @@ plugins:
         - if: "[_response_valid_answer]"
           exec: _return
         - seq_req_cn
-  - tag: seq_req_main
+  - tag: seq_req_route
     type: sequence
     args:
       exec:
@@ -187,6 +204,17 @@ plugins:
             - seq_req_gfw
             - _return
         - seq_req_unknown
+  - tag: seq_req_main
+    type: sequence
+    args:
+      exec:
+        - seq_req_route
+        - if: resp_cf
+          exec:
+            - cf_ip
+        - if: resp_akamai
+          exec:
+            - forward_akamai
 
   - tag: main_sequence
     type: sequence
@@ -211,9 +239,6 @@ plugins:
             - _return
         - _prefer_ipv4
         - seq_req_main
-        - if: resp_cf
-          exec:
-            - cf_ip
 
 servers:
   - exec: main_sequence
