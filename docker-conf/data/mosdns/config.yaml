@@ -78,8 +78,11 @@ plugins:
     type: cache
     args:
       size: 8192
-      lazy_cache_ttl: 86400
-      lazy_cache_reply_ttl: 1
+      cache_everything: true
+  - tag: cache_cn
+    type: cache
+    args:
+      size: 8192
       cache_everything: true
 
   - tag: cache_reverse_lookup
@@ -90,7 +93,7 @@ plugins:
   - tag: cf_ip
     type: blackhole
     args:
-      ipv4: [162.159.36.75]
+      ipv4: [162.159.16.216]
 
   - tag: qtype_a_or_aaaa
     type: query_matcher
@@ -144,14 +147,17 @@ plugins:
     args:
       ip:
         - "provider:ip_cloudflare"
+  - tag: resp_cname_akamai
+    type: response_matcher
+    args:
+      cname:
+        - akamai.net
+        - akamaiedge.net
   - tag: resp_akamai
     type: response_matcher
     args:
       ip:
         - "provider:ip_akamai"
-      cname:
-        - akamai.net
-        - akamaiedge.net
 
   - tag: seq_add_ecs
     type: sequence
@@ -168,6 +174,12 @@ plugins:
       exec:
         - _pad_query
         - forward_cn
+  - tag: seq_req_cn_cache
+    type: sequence
+    args:
+      exec:
+        - cache_cn
+        - seq_req_cn
   - tag: seq_req_gfw
     type: sequence
     args:
@@ -188,9 +200,8 @@ plugins:
               - if: "resp_cn"
                 exec:
                   - _drop_response
-        - if: "[_response_valid_answer]"
-          exec: _return
-        - seq_req_cn
+        - if: "! [_response_valid_answer]"
+          exec: seq_req_cn_cache
   - tag: seq_req_route
     type: sequence
     args:
@@ -212,23 +223,23 @@ plugins:
         - if: resp_cf
           exec:
             - cf_ip
-        - if: resp_akamai
+        - if: resp_cname_akamai || resp_akamai
           exec:
+            - _no_ecs
             - forward_akamai
 
   - tag: main_sequence
     type: sequence
     args:
       exec:
-        - _misc_optm
-        - _edns0_filter_ecs_only
-        - hosts
         # 屏蔽无效类型请求/升级安全DNS/私有域名
         - if: "req_non_domain || req_secure_dns || req_private"
           exec:
             - _new_nxdomain_response
             - _return
-        # 附加ecs
+        - _misc_optm
+        - hosts
+        - _prefer_ipv4
         - seq_add_ecs
         - cache_reverse_lookup
         - cache
@@ -237,7 +248,6 @@ plugins:
           exec:
             - seq_req_cn
             - _return
-        - _prefer_ipv4
         - seq_req_main
 
 servers:
