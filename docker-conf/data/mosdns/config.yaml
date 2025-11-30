@@ -37,75 +37,15 @@ plugins:
       hosts:
         - provider:hosts
 
-  - tag: forward_cn
-    type: fast_forward
-    args:
-      upstream:
-        - addr: 61.139.2.69
-        - addr: 218.6.200.139
-  - tag: forward_non_cn
-    type: fast_forward
-    args:
-      upstream:
-        - addr: udpme://8.8.8.8
-        - addr: udpme://8.8.4.4
-  - tag: forward_akamai
-    type: fast_forward
-    args:
-      upstream:
-        - addr: udpme://168.95.1.1
-        - addr: udpme://168.95.192.1
-
-  - tag: ecs_origin
-    type: ecs
-    args:
-      auto: true
-      force_overwrite: false
-  - tag: ecs_cn
-    type: ecs
-    args:
-      ipv4: 61.139.2.69
-      ipv6: 240e:56:4000:8000::69
-      force_overwrite: true
-  - tag: ecs_non_cn
-    type: ecs
-    args:
-      ipv4: 45.67.219.208
-      ipv6: 2a04:bdc7:100:70::70
-      force_overwrite: true
-
-  - tag: cache
-    type: cache
-    args:
-      size: 8192
-      cache_everything: true
-  - tag: cache_cn
-    type: cache
-    args:
-      size: 8192
-      cache_everything: true
-
-  - tag: cache_reverse_lookup
-    type: reverse_lookup
-    args:
-      size: 65535
-
-  - tag: cf_ip
-    type: blackhole
-    args:
-      ipv4: [162.159.16.216]
-
   - tag: qtype_a_or_aaaa
     type: query_matcher
     args:
       qtype: [1, 28, 64, 65]
-
   - tag: ori_private
     type: query_matcher
     args:
       client_ip:
         - "provider:ip_private"
-
   - tag: req_non_domain
     type: query_matcher
     args:
@@ -147,18 +87,29 @@ plugins:
     args:
       ip:
         - "provider:ip_cloudflare"
-  - tag: resp_cname_akamai
-    type: response_matcher
-    args:
-      cname:
-        - akamai.net
-        - akamaiedge.net
   - tag: resp_akamai
     type: response_matcher
     args:
       ip:
         - "provider:ip_akamai"
 
+  - tag: ecs_origin
+    type: ecs
+    args:
+      auto: true
+      force_overwrite: false
+  - tag: ecs_cn
+    type: ecs
+    args:
+      ipv4: 61.139.2.69
+      ipv6: 240e:56:4000:8000::69
+      force_overwrite: true
+  - tag: ecs_non_cn
+    type: ecs
+    args:
+      ipv4: 45.67.219.208
+      ipv6: 2a04:bdc7:100:70::70
+      force_overwrite: true
   - tag: seq_add_ecs
     type: sequence
     args:
@@ -168,51 +119,94 @@ plugins:
             - ecs_cn
           else_exec:
             - ecs_origin
-  - tag: seq_req_cn
+
+  - tag: cache
+    type: cache
+    args:
+      size: 8192
+      lazy_cache_ttl: 86400
+      lazy_cache_reply_ttl: 1
+      cache_everything: true
+  - tag: cache_forward
+    type: cache
+    args:
+      size: 8192
+      cache_everything: true
+  - tag: cache_reverse_lookup
+    type: reverse_lookup
+    args:
+      size: 65535
+
+  - tag: forward_cn
+    type: fast_forward
+    args:
+      upstream:
+        - addr: 61.139.2.69
+        - addr: 218.6.200.139
+  - tag: forward_non_cn
+    type: fast_forward
+    args:
+      upstream:
+        - addr: udpme://8.8.8.8
+        - addr: udpme://8.8.4.4
+  - tag: forward_akamai
+    type: fast_forward
+    args:
+      upstream:
+        - addr: udpme://168.95.1.1
+        - addr: udpme://168.95.192.1
+  - tag: cf_ip
+    type: blackhole
+    args:
+      ipv4: [162.159.16.216]
+  - tag: seq_forward_cn
     type: sequence
     args:
       exec:
+        - cache_forward
         - _pad_query
         - forward_cn
-  - tag: seq_req_cn_cache
-    type: sequence
-    args:
-      exec:
-        - cache_cn
-        - seq_req_cn
-  - tag: seq_req_gfw
+  - tag: seq_forward_gfw
     type: sequence
     args:
       exec:
         - ecs_non_cn
         - _pad_query
         - forward_non_cn
+  - tag: seq_forward_akamai
+    type: sequence
+    args:
+      exec:
+        - _no_ecs
+        - _pad_query
+        - forward_akamai
+
   - tag: seq_req_unknown
     type: sequence
     args:
       exec:
         - parallel:
-            - - seq_req_cn
+            - - seq_forward_cn
               - if: "! resp_cn"
                 exec:
                   - _drop_response
-            - - seq_req_gfw
+            - - seq_forward_gfw
               - if: "resp_cn"
                 exec:
                   - _drop_response
         - if: "! [_response_valid_answer]"
-          exec: seq_req_cn_cache
+          exec: seq_forward_cn
   - tag: seq_req_route
     type: sequence
     args:
       exec:
         - if: req_cn
           exec:
-            - seq_req_cn
+            - seq_forward_cn
             - _return
         - if: req_gfw
           exec:
-            - seq_req_gfw
+            - seq_forward_gfw
             - _return
         - seq_req_unknown
   - tag: seq_req_main
@@ -222,11 +216,12 @@ plugins:
         - seq_req_route
         - if: resp_cf
           exec:
+            - _drop_response
             - cf_ip
-        - if: resp_cname_akamai || resp_akamai
+        - if: resp_akamai
           exec:
-            - _no_ecs
-            - forward_akamai
+            - _drop_response
+            - seq_forward_akamai
 
   - tag: main_sequence
     type: sequence
@@ -239,14 +234,14 @@ plugins:
             - _return
         - _misc_optm
         - hosts
-        - _prefer_ipv4
         - seq_add_ecs
         - cache_reverse_lookup
         - cache
+        - _prefer_ipv4
         # 非ip请求一律走国内
         - if: "! qtype_a_or_aaaa"
           exec:
-            - seq_req_cn
+            - seq_forward_cn
             - _return
         - seq_req_main
 
@@ -254,7 +249,7 @@ servers:
   - exec: main_sequence
     listeners:
       - protocol: udp
-        addr: :53
+        addr: 127.0.0.1:5353
 
 api:
   http: 127.0.0.1:8080
