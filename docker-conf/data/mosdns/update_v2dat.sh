@@ -8,5 +8,5 @@ mosdns v2dat unpack-domain -o /etc/mosdns /etc/mosdns/geosite.dat:private,catego
 
 curl -L https://testingcf.jsdelivr.net/gh/platformbuilds/Akamai-ASN-and-IPs-List@master/akamai_ip_list.lst -o /etc/mosdns/tmp_akamai_ip4
 curl -L https://testingcf.jsdelivr.net/gh/platformbuilds/Akamai-ASN-and-IPs-List@master/akamai_ipv6_list.lst -o /etc/mosdns/tmp_akamai_ip6
-cat tmp_akamai_ip4 tmp_akamai_ip6 > ip_akamai.txt
-rm -f tmp_akamai_ip4 tmp_akamai_ip6
+cat /etc/mosdns/tmp_akamai_ip4 /etc/mosdns/tmp_akamai_ip6 > /etc/mosdns/ip_akamai.txt
+rm -f /etc/mosdns/tmp_akamai_ip4 /etc/mosdns/tmp_akamai_ip6
