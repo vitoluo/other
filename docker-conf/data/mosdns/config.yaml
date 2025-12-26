@@ -1,6 +1,5 @@
 log:
   level: warn
-  file: /var/log/mosdns.log
 
 data_providers:
   - tag: ip_private
@@ -12,8 +11,6 @@ data_providers:
   - tag: ip_cloudflare
     file: ./geoip_cloudflare.txt
     auto_reload: true
-  - tag: ip_akamai
-    file: ./ip_akamai.txt
   - tag: site_private
     file: ./geosite_private.txt
     auto_reload: true
@@ -87,11 +84,6 @@ plugins:
     args:
       ip:
         - "provider:ip_cloudflare"
-  - tag: resp_akamai
-    type: response_matcher
-    args:
-      ip:
-        - "provider:ip_akamai"
 
   - tag: ecs_origin
     type: ecs
@@ -104,7 +96,7 @@ plugins:
       ipv4: 61.139.2.69
       ipv6: 240e:56:4000:8000::69
       force_overwrite: true
-  - tag: ecs_non_cn
+  - tag: ecs_us
     type: ecs
     args:
       ipv4: 45.67.219.208
@@ -147,14 +139,8 @@ plugins:
     type: fast_forward
     args:
       upstream:
-        - addr: udpme://8.8.8.8
-        - addr: udpme://8.8.4.4
-  - tag: forward_akamai
-    type: fast_forward
-    args:
-      upstream:
-        - addr: udpme://168.95.1.1
-        - addr: udpme://168.95.192.1
+        - addr: udpme://164.124.101.2
+        - addr: udpme://203.248.252.2
   - tag: cf_ip
     type: blackhole
     args:
@@ -170,16 +156,9 @@ plugins:
     type: sequence
     args:
       exec:
-        - ecs_non_cn
-        - _pad_query
-        - forward_non_cn
-  - tag: seq_forward_akamai
-    type: sequence
-    args:
-      exec:
         - _no_ecs
         - _pad_query
-        - forward_akamai
+        - forward_non_cn
 
   - tag: seq_req_unknown
     type: sequence
@@ -218,10 +197,6 @@ plugins:
           exec:
             - _drop_response
             - cf_ip
-        - if: resp_akamai
-          exec:
-            - _drop_response
-            - seq_forward_akamai
 
   - tag: main_sequence
     type: sequence
@@ -234,6 +209,7 @@ plugins:
             - _return
         - _misc_optm
         - hosts
+        - _edns0_filter_ecs_only
         - seq_add_ecs
         - cache_reverse_lookup
         - cache
