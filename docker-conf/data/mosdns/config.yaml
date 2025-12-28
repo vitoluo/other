@@ -34,15 +34,6 @@ plugins:
       hosts:
         - provider:hosts
 
-  - tag: qtype_a_or_aaaa
-    type: query_matcher
-    args:
-      qtype: [1, 28, 64, 65]
-  - tag: ori_private
-    type: query_matcher
-    args:
-      client_ip:
-        - "provider:ip_private"
   - tag: req_non_domain
     type: query_matcher
     args:
@@ -63,6 +54,15 @@ plugins:
     args:
       domain:
         - "provider:site_ads"
+  - tag: req_route_qtype
+    type: query_matcher
+    args:
+      qtype: [1, 28, 64, 65]
+  - tag: req_src_private
+    type: query_matcher
+    args:
+      client_ip:
+        - "provider:ip_private"
   - tag: req_cn
     type: query_matcher
     args:
@@ -85,7 +85,7 @@ plugins:
       ip:
         - "provider:ip_cloudflare"
 
-  - tag: ecs_origin
+  - tag: ecs_source
     type: ecs
     args:
       auto: true
@@ -106,11 +106,11 @@ plugins:
     type: sequence
     args:
       exec:
-        - if: ori_private
+        - if: req_src_private
           exec:
             - ecs_cn
           else_exec:
-            - ecs_origin
+            - ecs_source
 
   - tag: cache
     type: cache
@@ -118,11 +118,6 @@ plugins:
       size: 8192
       lazy_cache_ttl: 86400
       lazy_cache_reply_ttl: 1
-      cache_everything: true
-  - tag: cache_forward
-    type: cache
-    args:
-      size: 8192
       cache_everything: true
   - tag: cache_reverse_lookup
     type: reverse_lookup
@@ -149,7 +144,6 @@ plugins:
     type: sequence
     args:
       exec:
-        - cache_forward
         - _pad_query
         - forward_cn
   - tag: seq_forward_gfw
@@ -202,20 +196,21 @@ plugins:
     type: sequence
     args:
       exec:
+        - _reject_any
+        - _misc_optm
+        - hosts
         # 屏蔽无效类型请求/升级安全DNS/私有域名
         - if: "req_non_domain || req_secure_dns || req_private"
           exec:
             - _new_nxdomain_response
             - _return
-        - _misc_optm
-        - hosts
         - _edns0_filter_ecs_only
         - seq_add_ecs
         - cache_reverse_lookup
         - cache
         - _prefer_ipv4
         # 非ip请求一律走国内
-        - if: "! qtype_a_or_aaaa"
+        - if: "! req_route_qtype"
           exec:
             - seq_forward_cn
             - _return
@@ -225,7 +220,7 @@ servers:
   - exec: main_sequence
     listeners:
       - protocol: udp
-        addr: 127.0.0.1:5353
+        addr: :53
 
 api:
   http: 127.0.0.1:8080
