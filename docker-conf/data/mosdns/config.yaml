@@ -140,6 +140,7 @@ plugins:
     type: blackhole
     args:
       ipv4: [162.159.16.216]
+
   - tag: seq_forward_cn
     type: sequence
     args:
@@ -153,22 +154,6 @@ plugins:
         - _no_ecs
         - _pad_query
         - forward_non_cn
-
-  - tag: seq_req_unknown
-    type: sequence
-    args:
-      exec:
-        - parallel:
-            - - seq_forward_cn
-              - if: "! resp_cn"
-                exec:
-                  - _drop_response
-            - - seq_forward_gfw
-              - if: "resp_cn"
-                exec:
-                  - _drop_response
-        - if: "! [_response_valid_answer]"
-          exec: seq_forward_cn
   - tag: seq_req_route
     type: sequence
     args:
@@ -181,7 +166,20 @@ plugins:
           exec:
             - seq_forward_gfw
             - _return
-        - seq_req_unknown
+        - primary:
+            - seq_forward_cn
+            - if: "! resp_cn"
+              exec:
+                - _drop_response
+          secondary:
+            - seq_forward_gfw
+            - if: "resp_cn"
+              exec:
+                - _drop_response
+          fast_fallback: 1
+          always_standby: true
+        - if: "! [_response_valid_answer]"
+          exec: seq_forward_cn
   - tag: seq_req_main
     type: sequence
     args:
