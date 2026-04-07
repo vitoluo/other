@@ -2,223 +2,226 @@ log:
   level: warn
 
 data_providers:
-  - tag: ip_private
-    file: ./geoip_private.txt
-    auto_reload: true
-  - tag: ip_cn
-    file: ./geoip_cn.txt
-    auto_reload: true
-  - tag: ip_cloudflare
-    file: ./geoip_cloudflare.txt
-    auto_reload: true
-  - tag: site_private
-    file: ./geosite_private.txt
-    auto_reload: true
-  - tag: site_ads
-    file: ./geosite_category-ads-all.txt
-    auto_reload: true
-  - tag: site_cn
-    file: ./geosite_cn.txt
-    auto_reload: true
-  - tag: site_gfw
-    file: ./geosite_gfw.txt
-    auto_reload: true
-  - tag: hosts
-    file: ./hosts.txt
-    auto_reload: true
+- tag: ip_private
+  file: ./geoip_private.txt
+  auto_reload: true
+- tag: ip_cn
+  file: ./geoip_cn.txt
+  auto_reload: true
+- tag: ip_cloudflare
+  file: ./geoip_cloudflare.txt
+  auto_reload: true
+- tag: site_private
+  file: ./geosite_private.txt
+  auto_reload: true
+- tag: site_ads
+  file: ./geosite_category-ads-all.txt
+  auto_reload: true
+- tag: site_cn
+  file: ./geosite_cn.txt
+  auto_reload: true
+- tag: site_gfw
+  file: ./geosite_gfw.txt
+  auto_reload: true
+- tag: hosts
+  file: ./hosts.txt
+  auto_reload: true
+- tag: cf_best_ip
+  file: ./cf_best.txt
+  auto_reload: true
 
 plugins:
-  - tag: hosts
-    type: hosts
-    args:
-      hosts:
-        - provider:hosts
+- tag: hosts
+  type: hosts
+  args:
+    hosts:
+    - provider:hosts
+- tag: cf_best
+  type: hosts
+  args:
+    hosts:
+    - provider:cf_best_ip
 
-  - tag: req_non_domain
-    type: query_matcher
-    args:
-      domain:
-        - "keyword::"
-  - tag: req_secure_dns
-    type: query_matcher
-    args:
-      domain:
-        - "full:_dns.resolver.arpa"
-  - tag: req_private
-    type: query_matcher
-    args:
-      domain:
-        - "provider:site_private"
-  - tag: req_ads
-    type: query_matcher
-    args:
-      domain:
-        - "provider:site_ads"
-  - tag: req_route_qtype
-    type: query_matcher
-    args:
-      qtype: [1, 28, 64, 65]
-  - tag: req_src_private
-    type: query_matcher
-    args:
-      client_ip:
-        - "provider:ip_private"
-  - tag: req_cn
-    type: query_matcher
-    args:
-      domain:
-        - "provider:site_cn"
-  - tag: req_gfw
-    type: query_matcher
-    args:
-      domain:
-        - "provider:site_gfw"
+- tag: req_non_domain
+  type: query_matcher
+  args:
+    domain:
+    - "keyword::"
+- tag: req_secure_dns
+  type: query_matcher
+  args:
+    domain:
+    - "full:_dns.resolver.arpa"
+- tag: req_private
+  type: query_matcher
+  args:
+    domain:
+    - "provider:site_private"
+- tag: req_ads
+  type: query_matcher
+  args:
+    domain:
+    - "provider:site_ads"
+- tag: req_route_qtype
+  type: query_matcher
+  args:
+    qtype: [ 1, 28, 64, 65 ]
+- tag: req_src_private
+  type: query_matcher
+  args:
+    client_ip:
+    - "provider:ip_private"
+- tag: req_cn
+  type: query_matcher
+  args:
+    domain:
+    - "provider:site_cn"
+- tag: req_gfw
+  type: query_matcher
+  args:
+    domain:
+    - "provider:site_gfw"
 
-  - tag: resp_cn
-    type: response_matcher
-    args:
-      ip:
-        - "provider:ip_cn"
-  - tag: resp_cf
-    type: response_matcher
-    args:
-      ip:
-        - "provider:ip_cloudflare"
+- tag: resp_cn
+  type: response_matcher
+  args:
+    ip:
+    - "provider:ip_cn"
+- tag: resp_cf
+  type: response_matcher
+  args:
+    ip:
+    - "provider:ip_cloudflare"
 
-  - tag: ecs_source
-    type: ecs
-    args:
-      auto: true
-      force_overwrite: false
-  - tag: ecs_cn
-    type: ecs
-    args:
-      ipv4: 61.139.2.69
-      ipv6: 240e:56:4000:8000::69
-      force_overwrite: true
-  - tag: ecs_us
-    type: ecs
-    args:
-      ipv4: 45.67.219.208
-      ipv6: 2a04:bdc7:100:70::70
-      force_overwrite: true
-  - tag: seq_add_ecs
-    type: sequence
-    args:
+- tag: ecs_source
+  type: ecs
+  args:
+    auto: true
+    force_overwrite: false
+- tag: ecs_cn
+  type: ecs
+  args:
+    ipv4: 61.139.2.69
+    ipv6: 240e:56:4000:8000::69
+    force_overwrite: true
+- tag: ecs_us
+  type: ecs
+  args:
+    ipv4: 45.67.219.208
+    ipv6: 2a04:bdc7:100:70::70
+    force_overwrite: true
+- tag: seq_add_ecs
+  type: sequence
+  args:
+    exec:
+    - if: req_src_private
       exec:
-        - if: req_src_private
-          exec:
-            - ecs_cn
-          else_exec:
-            - ecs_source
+      - ecs_cn
+      else_exec:
+      - ecs_source
 
-  - tag: cache
-    type: cache
-    args:
-      size: 8192
-      lazy_cache_ttl: 86400
-      lazy_cache_reply_ttl: 1
-      cache_everything: true
-  - tag: cache_reverse_lookup
-    type: reverse_lookup
-    args:
-      size: 65535
+- tag: cache
+  type: cache
+  args:
+    size: 8192
+    lazy_cache_ttl: 86400
+    lazy_cache_reply_ttl: 1
+    cache_everything: true
+- tag: cache_reverse_lookup
+  type: reverse_lookup
+  args:
+    size: 65535
 
-  - tag: forward_cn
-    type: fast_forward
-    args:
-      upstream:
-        - addr: 61.139.2.69
-        - addr: 218.6.200.139
-  - tag: forward_non_cn
-    type: fast_forward
-    args:
-      upstream:
-        - addr: udpme://164.124.101.2
-        - addr: udpme://203.248.252.2
-  - tag: cf_ip
-    type: blackhole
-    args:
-      ipv4: [162.159.16.216]
+- tag: forward_cn
+  type: fast_forward
+  args:
+    upstream:
+    - addr: 61.139.2.69
+    - addr: 218.6.200.139
+- tag: forward_non_cn
+  type: fast_forward
+  args:
+    upstream:
+    - addr: udpme://164.124.101.2
+    - addr: udpme://203.248.252.2
 
-  - tag: seq_forward_cn
-    type: sequence
-    args:
+- tag: seq_forward_cn
+  type: sequence
+  args:
+    exec:
+    - _pad_query
+    - forward_cn
+- tag: seq_forward_gfw
+  type: sequence
+  args:
+    exec:
+    - _no_ecs
+    - _pad_query
+    - forward_non_cn
+- tag: seq_req_route
+  type: sequence
+  args:
+    exec:
+    - if: req_cn
       exec:
-        - _pad_query
-        - forward_cn
-  - tag: seq_forward_gfw
-    type: sequence
-    args:
+      - seq_forward_cn
+      - _return
+    - if: req_gfw
       exec:
-        - _no_ecs
-        - _pad_query
-        - forward_non_cn
-  - tag: seq_req_route
-    type: sequence
-    args:
+      - seq_forward_gfw
+      - _return
+    - primary:
+      - seq_forward_cn
+      - if: "! resp_cn"
+        exec:
+        - _drop_response
+      secondary:
+      - seq_forward_gfw
+      - if: "resp_cn"
+        exec:
+        - _drop_response
+      fast_fallback: 1
+      always_standby: true
+    - if: "! [_response_valid_answer]"
+      exec: seq_forward_cn
+- tag: seq_req_main
+  type: sequence
+  args:
+    exec:
+    - seq_req_route
+    - if: resp_cf
       exec:
-        - if: req_cn
-          exec:
-            - seq_forward_cn
-            - _return
-        - if: req_gfw
-          exec:
-            - seq_forward_gfw
-            - _return
-        - primary:
-            - seq_forward_cn
-            - if: "! resp_cn"
-              exec:
-                - _drop_response
-          secondary:
-            - seq_forward_gfw
-            - if: "resp_cn"
-              exec:
-                - _drop_response
-          fast_fallback: 1
-          always_standby: true
-        - if: "! [_response_valid_answer]"
-          exec: seq_forward_cn
-  - tag: seq_req_main
-    type: sequence
-    args:
-      exec:
-        - seq_req_route
-        - if: resp_cf
-          exec:
-            - _drop_response
-            - cf_ip
+      - cf_best
 
-  - tag: main_sequence
-    type: sequence
-    args:
+- tag: main_sequence
+  type: sequence
+  args:
+    exec:
+    - _reject_any
+    - _misc_optm
+    - hosts
+    # 屏蔽无效类型请求/升级安全DNS/私有域名
+    - if: "req_non_domain || req_secure_dns || req_private"
       exec:
-        - _reject_any
-        - _misc_optm
-        - hosts
-        # 屏蔽无效类型请求/升级安全DNS/私有域名
-        - if: "req_non_domain || req_secure_dns || req_private"
-          exec:
-            - _new_nxdomain_response
-            - _return
-        - _edns0_filter_ecs_only
-        - seq_add_ecs
-        - cache_reverse_lookup
-        - cache
-        - _prefer_ipv4
-        # 非ip请求一律走国内
-        - if: "! req_route_qtype"
-          exec:
-            - seq_forward_cn
-            - _return
-        - seq_req_main
+      - _new_nxdomain_response
+      - _return
+    - _edns0_filter_ecs_only
+    - seq_add_ecs
+    - cache_reverse_lookup
+    - cache
+    - _prefer_ipv4
+    # 非ip请求一律走国内
+    - if: "! req_route_qtype"
+      exec:
+      - seq_forward_cn
+      - _return
+    - seq_req_main
 
 servers:
-  - exec: main_sequence
-    listeners:
-      - protocol: udp
-        addr: :53
+- exec: main_sequence
+  listeners:
+  - protocol: udp
+    addr: :53
 
 api:
   http: 127.0.0.1:8080
